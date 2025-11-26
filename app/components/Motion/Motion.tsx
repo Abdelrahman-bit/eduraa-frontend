@@ -92,6 +92,26 @@ export const MotionImageRight = ({
       <motion.div
          initial={{ opacity: 0, x: 50 }}
          whileInView={{ opacity: 1, x: 0 }}
+         viewport={{ once: false }}
+         transition={{ duration: 0.8 }}
+         className={className}
+      >
+         {children}
+      </motion.div>
+   );
+};
+// 6. صورة تدخل من اليسار (MotionImageLeft)
+export const MotionImageLeft = ({
+   children,
+   className,
+}: {
+   children: React.ReactNode;
+   className?: string;
+}) => {
+   return (
+      <motion.div
+         initial={{ opacity: 0, x: -50 }} // negative x to come from left
+         whileInView={{ opacity: 1, x: 0 }}
          viewport={{ once: true }}
          transition={{ duration: 0.8 }}
          className={className}
