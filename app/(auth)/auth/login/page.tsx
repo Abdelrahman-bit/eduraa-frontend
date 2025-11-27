@@ -1,11 +1,11 @@
 import Image from 'next/image';
-import { MotionImageRight } from '@/app/components/Motion/Motion';
+import { MotionImageRight } from '@/app/components/global/Motion/Motion';
 import LoginForm from '../../../components/auth/LoginForm/LoginForm';
 
 const Login = () => {
    return (
-      <main className="flex h-[88vh]">
-         <div className="w-[45%] flex justify-center items-center bg-secondary">
+      <main className="flex flex-col md:flex-row h-screen md:h-[88vh]">
+         <div className="w-full md:w-[45%] flex justify-center items-center bg-secondary p-4 md:p-0">
             <MotionImageRight>
                <Image
                   src={'/login/login.png'}
@@ -15,7 +15,7 @@ const Login = () => {
                />
             </MotionImageRight>
          </div>
-         <div className="w-1/2 flex justify-center items-center bg-white">
+         <div className="w-full md:w-1/2 flex justify-center items-center bg-white p-4 md:p-0">
             <LoginForm />
          </div>
       </main>
