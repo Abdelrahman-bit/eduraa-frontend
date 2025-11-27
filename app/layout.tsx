@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import { Toaster } from 'react-hot-toast';
 
 import './globals.css';
 
@@ -22,6 +23,7 @@ export default function RootLayout({
          <body
             className={`${inter.className} antialiased min-h-screen flex flex-col`}
          >
+            <Toaster />
             <main className="grow">{children}</main>
          </body>
       </html>
