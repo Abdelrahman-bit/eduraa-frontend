@@ -1,4 +1,3 @@
-// pages/contact.tsx
 import React from 'react';
 import Image from 'next/image';
 import { Mail, Phone, ArrowRight } from 'lucide-react';
