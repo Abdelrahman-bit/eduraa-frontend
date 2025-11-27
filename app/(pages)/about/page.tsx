@@ -30,14 +30,14 @@ type Testimonial = {
 };
 
 const partners: Partner[] = [
-   { name: 'Netflix', src: '/netflix.svg' },
-   { name: 'YouTube', src: '/youtube.svg' },
-   { name: 'Google', src: '/google.svg' },
-   { name: 'Lenovo', src: '/lenovo.svg' },
-   { name: 'Slack', src: '/slack.svg' },
-   { name: 'Verizon', src: '/verizon.svg' },
-   { name: 'Lexmark', src: '/lexmark.svg' },
-   { name: 'Microsoft', src: '/microsoft.svg' },
+   { name: 'Netflix', src: '/about/netflix.svg' },
+   { name: 'YouTube', src: '/about/youtube.svg' },
+   { name: 'Google', src: '/about/google.svg' },
+   { name: 'Lenovo', src: '/about/lenovo.svg' },
+   { name: 'Slack', src: '/about/slack.svg' },
+   { name: 'Verizon', src: '/about/verizon.svg' },
+   { name: 'Lexmark', src: '/about/lexmark.svg' },
+   { name: 'Microsoft', src: '/about/microsoft.svg' },
 ];
 
 const stats: Stat[] = [
@@ -122,7 +122,7 @@ export default function AboutPage() {
                </MotionContainer>
                <MotionImageRight className="relative h-[400px] lg:h-[500px] w-full rounded-lg overflow-hidden shadow-xl">
                   <Image
-                     src="/about.jpg"
+                     src="/about/about.jpg"
                      alt="Team"
                      fill
                      className="object-cover"
@@ -188,7 +188,7 @@ export default function AboutPage() {
                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
                   <MotionImageUp className="relative h-[400px] w-full">
                      <Image
-                        src="/about2.png"
+                        src="/about/about2.png"
                         alt="Mission"
                         fill
                         className="object-contain object-bottom"
@@ -252,7 +252,7 @@ export default function AboutPage() {
                   <div className="lg:col-span-7">
                      <MotionScale className="relative w-full h-[400px] lg:h-[500px]">
                         <Image
-                           src="/about3.svg"
+                           src="/about/about3.svg"
                            alt="Gallery illustration"
                            fill
                            className="object-contain object-right"
