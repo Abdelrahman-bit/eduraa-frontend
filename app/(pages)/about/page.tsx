@@ -207,8 +207,9 @@ export default function AboutPage() {
                      </MotionItem>
                      <MotionItem>
                         <p className="text-gray-600 leading-relaxed">
-                           "We cannot solve our problems with the same thinking
-                           we used when we created them." — Albert Einstein.
+                           &ldquo;We cannot solve our problems with the same
+                           thinking we used when we created them.&rdquo; —
+                           Albert Einstein.
                         </p>
                      </MotionItem>
                   </MotionContainer>
