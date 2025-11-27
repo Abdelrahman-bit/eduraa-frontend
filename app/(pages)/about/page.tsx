@@ -15,8 +15,8 @@ import {
    MotionImageUp,
    MotionItem,
    MotionScale,
-} from '../../components/Motion/Motion';
-import { BreadcrumbHeader } from '../../components/Breadcrumb/Breadcrumb';
+} from '../../components/global/Motion/Motion';
+import { BreadcrumbHeader } from '../../components/global/Breadcrumb/Breadcrumb';
 
 // --- Types ---
 type Partner = { name: string; src: string };

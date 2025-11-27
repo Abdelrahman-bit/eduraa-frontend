@@ -8,6 +8,7 @@ import {
    Twitter,
    Youtube,
 } from 'lucide-react';
+import Link from 'next/link';
 
 export default function Footer() {
    return (
@@ -86,12 +87,12 @@ export default function Footer() {
                   </h3>
                   <ul className="space-y-2 text-sm text-gray-400">
                      <li>
-                        <a
-                           href="#"
+                        <Link
+                           href="/about"
                            className="hover:text-orange-500 transition-colors"
                         >
                            About
-                        </a>
+                        </Link>
                      </li>
                      <li>
                         <a
@@ -102,20 +103,20 @@ export default function Footer() {
                         </a>
                      </li>
                      <li>
-                        <a
-                           href="#"
+                        <Link
+                           href="/contact"
                            className="hover:text-orange-500 transition-colors"
                         >
                            Contact
-                        </a>
+                        </Link>
                      </li>
                      <li>
-                        <a
-                           href="#"
+                        <Link
+                           href="/career"
                            className="hover:text-orange-500 transition-colors"
                         >
                            Career
-                        </a>
+                        </Link>
                      </li>
                   </ul>
                </div>

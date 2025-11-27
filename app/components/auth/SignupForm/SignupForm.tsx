@@ -3,8 +3,27 @@ import React from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 
 const SignupForm = () => {
+   const [firstName, setFirstName] = React.useState('');
+   const [lastName, setLastName] = React.useState('');
+   const [username, setUsername] = React.useState('');
+   const [email, setEmail] = React.useState('');
+   const [password, setPassword] = React.useState('');
+   const [confirmPassword, setConfirmPassword] = React.useState('');
+   const [termsChecked, setTermsChecked] = React.useState(false);
+
    const [showPassword, setShowPassword] = React.useState(false);
    const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
+
+   const [errors, setErrors] = React.useState<{
+      firstName?: string;
+      lastName?: string;
+      username?: string;
+      email?: string;
+      password?: string;
+      confirmPassword?: string;
+      submit?: string;
+   }>({});
+   const [submitting, setSubmitting] = React.useState(false);
 
    const togglePasswordVisibility = () => {
       setShowPassword(!showPassword);
@@ -14,11 +33,69 @@ const SignupForm = () => {
       setShowConfirmPassword(!showConfirmPassword);
    };
 
+   const validate = () => {
+      const e: any = {};
+      if (!firstName.trim()) e.firstName = 'First name is required.';
+      if (!lastName.trim()) e.lastName = 'Last name is required.';
+      if (!username.trim()) e.username = 'Username is required.';
+      else if (username.length < 3)
+         e.username = 'Username must be at least 3 characters.';
+      if (!email.trim()) e.email = 'Email is required.';
+      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+         e.email = 'Enter a valid email.';
+      if (!password) e.password = 'Password is required.';
+      else if (password.length < 6)
+         e.password = 'Password must be at least 6 characters.';
+      if (!confirmPassword) e.confirmPassword = 'Confirm your password.';
+      else if (confirmPassword !== password)
+         e.confirmPassword = 'Passwords do not match.';
+      if (!termsChecked) e.submit = 'You must agree to the Terms & Conditions.';
+      setErrors(e);
+      return Object.keys(e).length === 0;
+   };
+
+   const handleSubmit = async (ev: React.FormEvent) => {
+      ev.preventDefault();
+      setErrors({});
+      if (!validate()) return;
+      setSubmitting(true);
+      try {
+         const res = await fetch('/api/auth/signup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+               firstName,
+               lastName,
+               username,
+               email,
+               password,
+            }),
+            credentials: 'include',
+         });
+
+         if (!res.ok) {
+            const body = await res.json().catch(() => ({}));
+            setErrors({
+               submit: body?.message || `Request failed (${res.status})`,
+            });
+            setSubmitting(false);
+            return;
+         }
+
+         // success - optionally handle response (token, redirect)
+         // For now, redirect to login page
+         window.location.href = '/auth/login';
+      } catch (err) {
+         setErrors({ submit: 'Network error. Please try again.' });
+         setSubmitting(false);
+      }
+   };
+
    return (
       <div className="w-full max-w-md">
          <h1 className="text-2xl font-bold mb-5">Create your account</h1>
 
-         <form className="space-y-3">
+         <form onSubmit={handleSubmit} className="space-y-3">
             {/* Full Name */}
             <div>
                <label className="block text-xs font-medium text-gray-700 mb-1">
@@ -28,14 +105,26 @@ const SignupForm = () => {
                   <input
                      type="text"
                      placeholder="First name..."
+                     value={firstName}
+                     onChange={(e) => setFirstName(e.target.value)}
                      className="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                   <input
                      type="text"
                      placeholder="Last name"
+                     value={lastName}
+                     onChange={(e) => setLastName(e.target.value)}
                      className="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                </div>
+               {errors.firstName && (
+                  <p className="text-xs text-red-500 mt-1">
+                     {errors.firstName}
+                  </p>
+               )}
+               {errors.lastName && (
+                  <p className="text-xs text-red-500 mt-1">{errors.lastName}</p>
+               )}
             </div>
 
             {/* Username */}
@@ -46,8 +135,13 @@ const SignupForm = () => {
                <input
                   type="text"
                   placeholder="Username..."
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
                   className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
                />
+               {errors.username && (
+                  <p className="text-xs text-red-500 mt-1">{errors.username}</p>
+               )}
             </div>
 
             {/* Email */}
@@ -58,8 +152,13 @@ const SignupForm = () => {
                <input
                   type="email"
                   placeholder="Email address"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
                   className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
                />
+               {errors.email && (
+                  <p className="text-xs text-red-500 mt-1">{errors.email}</p>
+               )}
             </div>
 
             {/* Password */}
@@ -71,6 +170,8 @@ const SignupForm = () => {
                   <input
                      type={showPassword ? 'text' : 'password'}
                      placeholder="Create password"
+                     value={password}
+                     onChange={(e) => setPassword(e.target.value)}
                      className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                   <button
@@ -92,6 +193,8 @@ const SignupForm = () => {
                   <input
                      type={showConfirmPassword ? 'text' : 'password'}
                      placeholder="Confirm password"
+                     value={confirmPassword}
+                     onChange={(e) => setConfirmPassword(e.target.value)}
                      className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                   <button
@@ -109,6 +212,8 @@ const SignupForm = () => {
                <input
                   type="checkbox"
                   id="terms"
+                  checked={termsChecked}
+                  onChange={(e) => setTermsChecked(e.target.checked)}
                   className="mt-0.5 w-3 h-3 accent-orange-500"
                />
                <label htmlFor="terms" className="text-xs">
@@ -122,11 +227,16 @@ const SignupForm = () => {
             {/* Create Account Button */}
             <button
                type="submit"
-               className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 text-sm rounded transition-colors flex items-center justify-center gap-2"
+               disabled={submitting}
+               className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 text-sm rounded transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
             >
-               Create Account
+               {submitting ? 'Creating...' : 'Create Account'}
                <span>→</span>
             </button>
+
+            {errors.submit && (
+               <p className="text-xs text-red-500">{errors.submit}</p>
+            )}
 
             {/* Social Sign Up */}
             <div className="relative my-3">
