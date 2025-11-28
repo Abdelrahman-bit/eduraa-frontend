@@ -82,9 +82,13 @@ const SignupForm = () => {
             return;
          }
 
-         // success - optionally handle response (token, redirect)
-         // For now, redirect to login page
-         window.location.href = '/auth/login';
+         const data = await res.json().catch(() => ({}));
+
+         if (typeof window !== 'undefined' && data?.token) {
+            localStorage.setItem('token', data.token);
+         }
+
+         window.location.href = '/';
       } catch (err) {
          setErrors({ submit: 'Network error. Please try again.' });
          setSubmitting(false);

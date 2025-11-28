@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import { Toaster } from 'react-hot-toast';
 
 import './globals.css';
+import { QueryProvider } from './providers/QueryProvider';
 
 const inter = Inter({
    subsets: ['latin'],
@@ -23,8 +24,10 @@ export default function RootLayout({
          <body
             className={`${inter.className} antialiased min-h-screen flex flex-col`}
          >
-            <Toaster />
-            <main className="grow">{children}</main>
+            <QueryProvider>
+               <Toaster />
+               <main className="grow">{children}</main>
+            </QueryProvider>
          </body>
       </html>
    );
