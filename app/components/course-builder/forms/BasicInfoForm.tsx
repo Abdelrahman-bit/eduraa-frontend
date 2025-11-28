@@ -66,6 +66,7 @@ export function BasicInfoForm() {
       },
       onError: (error: Error) => {
          toast.error(error.message);
+         console.log('Error saving basic info:', error);
       },
       onSettled: () => setIsSaving(false),
    });
