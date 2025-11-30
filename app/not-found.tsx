@@ -42,7 +42,7 @@ export default function NotFound() {
                         src="/notFound.png"
                         alt="404 Not Found Page"
                         width={600}
-                        height={400}
+                        height={500}
                         className="object-contain"
                         priority
                      />

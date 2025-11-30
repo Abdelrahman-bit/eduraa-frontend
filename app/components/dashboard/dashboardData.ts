@@ -19,14 +19,22 @@ export const getSidebarItems = (role: 'instructor' | 'student') => {
          {
             label: 'Create New Course',
             icon: PlusCircle,
-            href: '/dashboard/create-course',
+            href: '/dashboard/instructor/create-course',
          },
-         { label: 'My Courses', icon: BookOpen, href: '/dashboard/courses' },
-         { label: 'Earning', icon: Wallet, href: '/dashboard/earnings' },
+         {
+            label: 'My Courses',
+            icon: BookOpen,
+            href: '/dashboard/instructor/courses',
+         },
+         {
+            label: 'Earning',
+            icon: Wallet,
+            href: '/dashboard/instructor/earnings',
+         },
          {
             label: 'Message',
             icon: MessageSquare,
-            href: '/dashboard/messages',
+            href: '/dashboard/instructor/messages',
             badge: 3,
          },
          { label: 'Settings', icon: Settings, href: '/dashboard/settings' },

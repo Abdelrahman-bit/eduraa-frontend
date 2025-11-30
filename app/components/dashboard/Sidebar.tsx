@@ -1,5 +1,5 @@
-// components/dashboard/Sidebar.tsx
-
+'use client';
+import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { LogOut, GraduationCap } from 'lucide-react';
 import { getSidebarItems } from '../dashboard/dashboardData';
@@ -10,6 +10,7 @@ interface SidebarProps {
 
 export default function Sidebar({ role }: SidebarProps) {
    const navItems = getSidebarItems(role);
+   const pathname = usePathname();
 
    return (
       <aside className="w-64 bg-[#1D2026] text-gray-400 flex flex-col h-screen fixed left-0 top-0 border-r border-gray-800 z-50">
@@ -30,9 +31,7 @@ export default function Sidebar({ role }: SidebarProps) {
                   key={index}
                   href={item.href}
                   className={`flex items-center justify-between px-6 py-3 hover:bg-gray-800 hover:text-white transition-colors ${
-                     item.label === 'Create New Course'
-                        ? 'bg-[#ff5b2e] text-white'
-                        : ''
+                     pathname === item.href ? 'bg-[#ff5b2e] text-white' : ''
                   }`}
                >
                   <div className="flex items-center gap-3">

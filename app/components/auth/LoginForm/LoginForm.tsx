@@ -50,9 +50,12 @@ export default function LoginForm() {
             return;
          }
 
-         // success
          const data = await res.json().catch(() => ({}));
-         // optional: store token or handle redirect based on backend response
+
+         if (typeof window !== 'undefined' && data?.token) {
+            localStorage.setItem('token', data.token);
+         }
+
          router.push('/');
       } catch (err) {
          setErrors({ submit: 'Network error. Please try again.' });
