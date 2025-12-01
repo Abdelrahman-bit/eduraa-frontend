@@ -24,7 +24,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import toast from 'react-hot-toast';
 
+import { useMutation } from '@tanstack/react-query';
 import { formSchema } from '../validation/formSchema';
+import { applyForJob } from '@/app/services/instructorService';
 export default function RegistrationDialog() {
    const form = useForm<z.infer<typeof formSchema>>({
       resolver: zodResolver(formSchema),
@@ -36,19 +38,27 @@ export default function RegistrationDialog() {
    });
 
    const [open, setOpen] = useState(false);
+   const { mutate, isPending } = useMutation({
+      mutationFn: applyForJob,
+      onSuccess: () => {
+         setOpen(false);
+         form.reset();
+         toast.success(
+            'Thank you for your request! We will review your application and get back to you soon.',
+            {
+               style: {
+                  fontSize: '14px',
+               },
+            }
+         );
+      },
+      onError: (error: Error) => {
+         toast.error(error.message || 'An error occurred. Please try again.');
+      },
+   });
    async function onSubmit(values: z.infer<typeof formSchema>) {
-      console.log('Form submitted:', values);
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setOpen(false);
-      form.reset();
-      toast.success(
-         'Thank you for your request! We will review your application and get back to you soon.',
-         {
-            style: {
-               fontSize: '14px',
-            },
-         }
-      );
+      const { phoneNumber, ...rest } = values;
+      mutate({ ...rest, phone: phoneNumber });
    }
    return (
       <>
@@ -135,10 +145,10 @@ export default function RegistrationDialog() {
                      />
                      <Button
                         type="submit"
-                        disabled={form.formState.isSubmitting}
+                        disabled={isPending}
                         className="w-full bg-[#FF6B35] hover:bg-[#e55a2b] text-white font-semibold py-6 mt-2 text-lg cursor-pointer flex items-center justify-center"
                      >
-                        {form.formState.isSubmitting ? (
+                        {isPending ? (
                            <>
                               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                               Submitting...

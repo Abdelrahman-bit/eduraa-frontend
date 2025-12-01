@@ -320,8 +320,8 @@ export function BasicInfoForm() {
                </div>
 
                <div className="flex justify-end gap-3">
-                  <Button type="submit" disabled={mutation.isPending}>
-                     {mutation.isPending ? 'Saving...' : 'Save & Next'}
+                  <Button type="submit" disabled={mutation.isLoading}>
+                     {mutation.isLoading ? 'Saving...' : 'Save & Next'}
                   </Button>
                </div>
             </form>

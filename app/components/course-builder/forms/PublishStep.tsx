@@ -95,7 +95,7 @@ export function PublishStep() {
                </Button>
                <Button
                   type="button"
-                  disabled={mutation.isPending}
+                  disabled={mutation.isPending} // Use isPending instead of isLoading
                   onClick={() => mutation.mutate('review')}
                >
                   {mutation.isPending ? 'Submitting...' : 'Submit for Review'}

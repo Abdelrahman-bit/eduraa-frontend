@@ -8,9 +8,13 @@ import {
    PackagePlus,
    MessageSquare,
    Wallet,
+   Users,
 } from 'lucide-react';
 
-export const getSidebarItems = (role: 'instructor' | 'student' | 'admin') => {
+export const getSidebarItems = (
+   role: 'instructor' | 'student' | 'admin',
+   counts?: { joinRequests?: number; courseRequests?: number }
+) => {
    const commonItems = [
       { label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard' },
       { label: 'Settings', icon: Settings, href: '/dashboard/settings' },
@@ -52,12 +56,19 @@ export const getSidebarItems = (role: 'instructor' | 'student' | 'admin') => {
             {
                label: 'Join Requests',
                icon: UserPlus,
-               href: '/dashboard/admin/instructorRequests',
+               href: '/dashboard/admin/join-requests',
+               badge: counts?.joinRequests,
             },
             {
                label: 'Course Requests',
                icon: PackagePlus,
-               href: '/dashboard/admin/courseRequests',
+               href: '/dashboard/admin/course-requests',
+               badge: counts?.courseRequests,
+            },
+            {
+               label: 'Instructors',
+               icon: Users,
+               href: '/dashboard/admin/instructors',
             },
             ...commonItems,
          ];

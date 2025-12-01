@@ -3,13 +3,33 @@ import { usePathname } from 'next/navigation';
 import Link from 'next/link';
 import { LogOut, GraduationCap } from 'lucide-react';
 import { getSidebarItems } from '../dashboard/dashboardData';
+import { useQuery } from '@tanstack/react-query';
+import {
+   getJoinRequests,
+   getInReviewCourses,
+} from '@/app/services/adminService';
 
 interface SidebarProps {
    role: 'instructor' | 'student' | 'admin';
 }
 
 export default function Sidebar({ role }: SidebarProps) {
-   const navItems = getSidebarItems(role);
+   const { data: joinRequests } = useQuery({
+      queryKey: ['joinRequests'],
+      queryFn: getJoinRequests,
+      enabled: role === 'admin',
+   });
+
+   const { data: courseRequests } = useQuery({
+      queryKey: ['inReviewCourses'],
+      queryFn: getInReviewCourses,
+      enabled: role === 'admin',
+   });
+
+   const navItems = getSidebarItems(role, {
+      joinRequests: joinRequests?.length,
+      courseRequests: courseRequests?.length,
+   });
    const pathname = usePathname();
 
    return (
