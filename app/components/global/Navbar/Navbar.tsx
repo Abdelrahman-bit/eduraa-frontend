@@ -1,9 +1,21 @@
+// NEXT
 import Link from 'next/link';
-import { IoIosMoon } from 'react-icons/io';
-
-import { IoMdNotificationsOutline } from 'react-icons/io';
-import Button from '../Button/Button';
 import Image from 'next/image';
+
+// Components
+import Button from '../Button/Button';
+import {
+   DropdownMenu,
+   DropdownMenuContent,
+   DropdownMenuItem,
+   DropdownMenuLabel,
+   DropdownMenuSeparator,
+   DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+
+// Icons
+import { IoIosMoon } from 'react-icons/io';
+import { IoMdNotificationsOutline } from 'react-icons/io';
 
 export default function Navbar() {
    return (
@@ -48,16 +60,19 @@ export default function Navbar() {
                   />
                </li>
                <li>
-                  <select
-                     name=""
-                     id=""
-                     className="w-50 h-12 border-2 border-gray-scale-100 px-2"
-                  >
-                     <option value="Courses">Browse</option>
-                     <option value="Courses">Courses</option>
-                     <option value="Teachers">Teachers</option>
-                     <option value="Students">Students</option>
-                  </select>
+                  <DropdownMenu>
+                     <DropdownMenuTrigger className="font-semibold ">
+                        Browse
+                     </DropdownMenuTrigger>
+                     <DropdownMenuContent>
+                        <DropdownMenuItem className="text-md p-4">
+                           <Link href="/instructors">Instructors</Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem className="text-md p-4">
+                           <Link href="/instructors">Courses</Link>
+                        </DropdownMenuItem>
+                     </DropdownMenuContent>
+                  </DropdownMenu>
                </li>
                <li>
                   <input

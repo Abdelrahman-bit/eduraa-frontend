@@ -5,7 +5,7 @@ import { LogOut, GraduationCap } from 'lucide-react';
 import { getSidebarItems } from '../dashboard/dashboardData';
 
 interface SidebarProps {
-   role: 'instructor' | 'student';
+   role: 'instructor' | 'student' | 'admin';
 }
 
 export default function Sidebar({ role }: SidebarProps) {

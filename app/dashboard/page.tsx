@@ -6,7 +6,7 @@ export default function DashboardPage() {
             Welcome to Your Dashboard!{' '}
          </h1>
          <p className="text-gray-500">
-            This content is rendered inside the layout automatically.
+            This content is rendered inside the layout a
          </p>
       </div>
    );
