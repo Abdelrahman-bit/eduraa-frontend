@@ -103,3 +103,12 @@ export interface CourseBuilderActions {
 }
 
 export type CourseBuilderStore = CourseBuilderState & CourseBuilderActions;
+
+export interface SignUpData {
+   firstName?: string;
+   lastName?: string;
+   username?: string;
+   email?: string;
+   password?: string;
+   confirmPassword?: string;
+}

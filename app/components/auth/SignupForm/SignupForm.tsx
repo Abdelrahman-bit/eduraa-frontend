@@ -1,9 +1,11 @@
 'use client';
 import React from 'react';
-// import { signUp } from '@/app/services/authService';
+import { signUp } from '@/app/services/authService';
 import { Eye, EyeOff } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 const SignupForm = () => {
+   const router = useRouter();
    const [firstName, setFirstName] = React.useState('');
    const [lastName, setLastName] = React.useState('');
    const [username, setUsername] = React.useState('');
@@ -61,7 +63,21 @@ const SignupForm = () => {
       if (!validate()) return;
 
       setSubmitting(true);
-      // TODO: Implement sign up logic
+      try {
+         await signUp({
+            firstName,
+            lastName,
+            username,
+            email,
+            password,
+            confirmPassword,
+         });
+         router.push('/courses');
+      } catch (error: any) {
+         setErrors({ submit: error.message });
+      } finally {
+         setSubmitting(false);
+      }
    };
 
    return (
