@@ -31,7 +31,7 @@ export default function InstructorRequestItem({
                   Approve
                </Button>
                <Button
-                  className="bg-gray-scale-900 bg-gray-scale-900 text-white px-4 rounded-lg cursor-pointer"
+                  className="bg-gray-scale-900 text-white px-4 rounded-lg cursor-pointer"
                   variant="destructive"
                >
                   Reject
