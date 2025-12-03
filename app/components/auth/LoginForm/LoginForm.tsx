@@ -2,9 +2,11 @@
 import React from 'react';
 import { Eye, EyeOff } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import useBearStore from '@/app/store/useStore';
 
 export default function LoginForm() {
    const router = useRouter();
+   const { initializeAuth } = useBearStore();
    const [showPassword, setShowPassword] = React.useState(false);
    const [email, setEmail] = React.useState('');
    const [password, setPassword] = React.useState('');
@@ -52,8 +54,9 @@ export default function LoginForm() {
 
          const data = await res.json().catch(() => ({}));
 
-         if (typeof window !== 'undefined' && data?.token) {
+         if (data?.token) {
             localStorage.setItem('token', data.token);
+            initializeAuth();
          }
 
          router.push('/');

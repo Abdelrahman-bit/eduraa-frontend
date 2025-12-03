@@ -4,6 +4,9 @@
 export interface User {
    id: number;
    name: string;
+   email: string;
+   role: 'student' | 'instructor' | 'admin';
+   avatar?: string;
 }
 
 export interface BearState {
@@ -18,6 +21,7 @@ export interface BearActions {
    decrement: () => void;
    login: (userData: User) => void;
    logout: () => void;
+   initializeAuth: () => void;
 }
 
 // 3. Combine State and Actions for the final store signature

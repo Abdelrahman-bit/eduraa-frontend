@@ -1,4 +1,5 @@
 import Header from '@/app/components/auth/Header';
+import RouteGuard from '@/app/components/auth/RouteGuard';
 
 export const metadata = {
    title: 'login and signup layout',
@@ -12,6 +13,7 @@ export default function AuthLayout({
 }>) {
    return (
       <>
+         <RouteGuard type="auth" />
          <Header />
          {children}
       </>
