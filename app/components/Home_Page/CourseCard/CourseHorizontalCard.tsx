@@ -8,79 +8,90 @@ import { CiClock2 } from 'react-icons/ci';
 export default function CourseHorizontalCard() {
    return (
       <div
-         className="flex gap-4  border border-gray-scale-100 items-center hover:shadow-lg
-        transition-all duration-300 
-        hover:-translate-y-1 cursor-pointer"
+         className="flex flex-col md:flex-row w-full border border-gray-100 rounded-sm overflow-hidden bg-white 
+             hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 cursor-pointer"
       >
-         {/* Course thumbnail */}
-         <div className="">
+         <div className="relative w-full aspect-[4/3] md:w-[280px] md:aspect-auto md:h-auto shrink-0">
             <Image
                src="/course2.png"
                alt="Course Image"
-               width={225}
-               height={200}
+               fill
                className="object-cover"
+               sizes="(max-width: 768px) 100vw, 33vw"
             />
          </div>
-         {/* Course category &price */}
-         <div className="flex flex-col justify-between gap-3 p-3">
-            <div className="flex justify-between items-center">
-               <p className="text-label-sm py-1 px-1.5 bg-success-100 text-success-700 font-medium uppercase">
-                  Health & Fitness
-               </p>
-               <div className="flex gap-2 items-center">
-                  <p className="text-body-xl font-medium text-gray-scale-900">
-                     $14.00
-                  </p>
-                  <p className="text-sm line-through font-normal text-gray-scale-400">
-                     $26.00
-                  </p>
-               </div>
-            </div>
-            {/* Course title */}
-            <p className="text-md font-medium text-gray-scale-900">
-               Investing In Stocks The Complete Course!
-            </p>
 
-            {/*Instractor Info */}
-            <div className="flex justify-between items-center border-b pb-2 border-gray-scale-100">
+         {/* Course Content - Flex-1 to occupy remaining space */}
+         <div className="flex flex-col flex-1 p-4 md:p-6 justify-between gap-4">
+            {/* Top Row: Category Badge & Price */}
+            <div>
+               <div className="flex justify-between items-start mb-2">
+                  {/* Category Badge */}
+                  <p className="text-xs py-1 px-2 bg-green-100 text-green-700 font-semibold uppercase rounded-sm">
+                     HEALTH & FITNESS
+                  </p>
+
+                  {/* Price */}
+                  <div className="flex gap-2 items-end">
+                     <p className="text-xl font-bold text-gray-900">$14.00</p>
+                     {/* Strikethrough price, lighter gray color */}
+                     <p className="text-sm line-through font-normal text-gray-400">
+                        $26.00
+                     </p>
+                  </div>
+               </div>
+
+               {/* Course Title - Added line-clamp-2 for safety */}
+               <h3 className="text-lg font-semibold text-gray-900 line-clamp-2">
+                  Investing In Stocks The Complete Course! (13 H...)
+               </h3>
+            </div>
+
+            {/* Instructor and Rating Row */}
+            <div className="flex justify-between items-center py-3 border-b border-gray-100">
+               {/* Instructor Info */}
                <div className="flex gap-2 items-center">
                   <Image
                      src="/avatar.jpg"
                      alt="Instructor Image"
-                     width={28}
-                     height={28}
-                     className="rounded-full"
+                     width={32}
+                     height={32}
+                     className="rounded-full object-cover shrink-0"
                   />
-                  <p className="text-sm font-medium text-gray-scale-700">
+                  <p className="text-base font-medium text-gray-700">
                      Kevin Gilbert
                   </p>
                </div>
 
-               <div className="flex gap-1 items-center">
-                  <FaStar size={16} className="text-primary-500" />
-                  <p className="text-md font-medium text-gray-scale-900">5.0</p>
-                  <p className="text-sm font-medium text-gray-scale-500">
-                     (357,914)
-                  </p>
+               {/* Rating (Pushed to the right) */}
+               <div className="flex gap-1.5 items-center">
+                  <FaStar size={18} className="text-orange-400" />
+                  <p className="text-base font-bold text-gray-900">5.0</p>
+                  <p className="text-sm font-normal text-gray-500">(357,914)</p>
                </div>
             </div>
-            {/*Course features */}
-            <div className="flex justify-between gap-4   ">
-               <div className="flex gap-1 items-center">
-                  <LuUserRound size={20} className="text-secondary-500" />
-                  <p className="text-sm font-medium text-gray-scale-700">
-                     265.5K
+
+            {/* Course Features / Statistics */}
+            <div className="flex justify-between flex-wrap gap-4 pt-1">
+               {/* Students */}
+               <div className="flex gap-1.5 items-center">
+                  <LuUserRound size={20} className="text-purple-600 shrink-0" />
+                  <p className="text-sm font-medium text-gray-700">265.5K</p>
+                  <p className="text-sm text-gray-500 hidden sm:block">
+                     students
                   </p>
-                  <p className="text-sm  text-gray-scale-500">students</p>
                </div>
-               <div className="flex gap-1 items-center">
-                  <FiBarChart size={20} className="text-danger-500" />
-                  <p className="text-sm  text-gray-scale-500">Beginner</p>
+
+               {/* Level */}
+               <div className="flex gap-1.5 items-center">
+                  <FiBarChart size={20} className="text-red-500 shrink-0" />
+                  <p className="text-sm font-medium text-gray-700">Beginner</p>
                </div>
-               <div className="flex gap-1 items-center">
-                  <CiClock2 size={20} className="text-success-700" />
-                  <p className="text-sm  text-gray-scale-500">6 Hours</p>
+
+               {/* Duration */}
+               <div className="flex gap-1.5 items-center">
+                  <CiClock2 size={20} className="text-green-700 shrink-0" />
+                  <p className="text-sm font-medium text-gray-700">6 Hours</p>
                </div>
             </div>
          </div>

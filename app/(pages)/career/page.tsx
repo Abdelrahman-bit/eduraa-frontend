@@ -11,14 +11,14 @@ import { BreadcrumbHeader } from '../../components/global/Breadcrumb/Breadcrumb'
 // --- Types ---
 type Partner = { name: string; src: string };
 const partners: Partner[] = [
-   { name: 'Netflix', src: '/netflix.svg' },
-   { name: 'YouTube', src: '/youtube.svg' },
-   { name: 'Google', src: '/google.svg' },
-   { name: 'Lenovo', src: '/lenovo.svg' },
-   { name: 'Slack', src: '/slack.svg' },
-   { name: 'Verizon', src: '/verizon.svg' },
-   { name: 'Lexmark', src: '/lexmark.svg' },
-   { name: 'Microsoft', src: '/microsoft.svg' },
+   { name: 'Netflix', src: '/about/netflix.svg' },
+   { name: 'YouTube', src: '/about/youtube.svg' },
+   { name: 'Google', src: '/about/google.svg' },
+   { name: 'Lenovo', src: '/about/lenovo.svg' },
+   { name: 'Slack', src: '/about/slack.svg' },
+   { name: 'Verizon', src: '/about/verizon.svg' },
+   { name: 'Lexmark', src: '/about/lexmark.svg' },
+   { name: 'Microsoft', src: '/about/microsoft.svg' },
 ];
 const BenefitCard: React.FC<{
    title: string;
@@ -59,7 +59,7 @@ export default function CareerPage() {
                         alt="hero"
                         width={540}
                         height={540}
-                        className="rounded-lg shadow-lg object-cover"
+                        className="rounded-lg object-cover"
                      />
                   </div>
                </div>
@@ -193,7 +193,7 @@ export default function CareerPage() {
                <div className="lg:col-span-7 grid grid-cols-3 gap-3">
                   <div className="col-span-4 row-span-2 overflow-hidden rounded">
                      <Image
-                        src="/about3.svg"
+                        src="/about/about3.svg"
                         width={300}
                         height={300}
                         alt="g1"
