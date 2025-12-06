@@ -35,23 +35,26 @@ export const getSidebarItems = (
                icon: BookOpen,
                href: '/dashboard/instructor/courses',
             },
-            ...commonItems,
-         ];
-         break;
-
-      case 'student':
-         items = [
             {
-               label: 'My Courses',
-               icon: BookOpen,
-               href: '/dashboard/student/courses',
+               label: 'Messages',
+               icon: MessageSquare,
+               href: '/dashboard/instructor/messages',
             },
             {
-               label: 'My Exams',
-               icon: BookCheck,
-               href: '/dashboard/student/exams',
+               label: 'Earnings',
+               icon: Wallet,
+               href: '/dashboard/instructor/earnings',
             },
-            ...commonItems,
+            {
+               label: 'settings',
+               icon: Settings,
+               href: '/dashboard/instructor/settings',
+            },
+            {
+               label: 'dashboard',
+               icon: LayoutDashboard,
+               href: '/dashboard/instructor',
+            },
          ];
          break;
 
@@ -74,7 +77,7 @@ export const getSidebarItems = (
                icon: Users,
                href: '/dashboard/admin/instructors',
             },
-            ...commonItems,
+            ,
          ];
          break;
 
