@@ -37,7 +37,11 @@ export const getSidebarItems = (role: 'instructor' | 'student') => {
             href: '/dashboard/instructor/messages',
             badge: 3,
          },
-         { label: 'Settings', icon: Settings, href: '/dashboard/settings' },
+         {
+            label: 'Settings',
+            icon: Settings,
+            href: '/dashboard/instructor/settings',
+         },
       ];
    }
 
