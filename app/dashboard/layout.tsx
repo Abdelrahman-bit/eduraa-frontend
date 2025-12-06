@@ -9,20 +9,18 @@ import RouteGuard from '../components/auth/RouteGuard';
 import useBearStore from '@/app/store/useStore';
 import { useEffect } from 'react';
 
-const { user, initializeAuth } = useBearStore();
-
-useEffect(() => {
-   initializeAuth();
-}, [initializeAuth]);
-
-const userRole = user?.role || 'student';
-
 export default function DashboardLayout({
    children,
 }: {
    children: React.ReactNode;
 }) {
-   const userRole = 'instructor';
+   const { user, initializeAuth } = useBearStore();
+
+   useEffect(() => {
+      initializeAuth();
+   }, [initializeAuth]);
+
+   const userRole = user?.role || 'instructor';
 
    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
