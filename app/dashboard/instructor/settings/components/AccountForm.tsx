@@ -3,8 +3,8 @@
 import React, { useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { apiClient } from '@/lib/http';
 import { accountSchema, AccountFormValues } from '../schemas';
+import { updateUserProfile } from '@/app/services/userService';
 import toast from 'react-hot-toast';
 import { InputGroup, SaveButton, SectionTitle } from './SharedUI';
 import { PhotoUpload } from './PhotoUpload';
@@ -14,13 +14,17 @@ interface AccountFormProps {
       firstname: string;
       lastname: string;
       phone?: string;
-      headline?: string;
+      title?: string;
       biography?: string;
       avatar?: string;
    } | null;
+   onAvatarUpdate?: () => void;
 }
 
-export default function AccountForm({ userData }: AccountFormProps) {
+export default function AccountForm({
+   userData,
+   onAvatarUpdate,
+}: AccountFormProps) {
    const [currentAvatar, setCurrentAvatar] = useState(userData?.avatar);
 
    const {
@@ -46,7 +50,7 @@ export default function AccountForm({ userData }: AccountFormProps) {
             firstName: userData.firstname || '',
             lastName: userData.lastname || '',
             phoneNumber: userData.phone || '',
-            title: userData.headline || '',
+            title: userData.title || '',
             biography: userData.biography || '',
          });
          setCurrentAvatar(userData.avatar);
@@ -55,21 +59,17 @@ export default function AccountForm({ userData }: AccountFormProps) {
 
    const onSubmit = async (data: AccountFormValues) => {
       try {
-         const payload = {
+         await updateUserProfile({
             firstname: data.firstName,
             lastname: data.lastName,
             phone: data.phoneNumber,
-            headline: data.title,
+            title: data.title,
             biography: data.biography,
-         };
-
-         await apiClient.patch('/user/profile', payload);
+         });
          toast.success('Account settings saved successfully!');
       } catch (error: any) {
          console.error(error);
-         toast.error(
-            error.response?.data?.message || 'Failed to update profile'
-         );
+         toast.error(error.message || 'Failed to update profile');
       }
    };
 
@@ -150,7 +150,10 @@ export default function AccountForm({ userData }: AccountFormProps) {
 
             <PhotoUpload
                currentAvatar={currentAvatar}
-               // onUploadSuccess={setCurrentAvatar}
+               onUploadSuccess={(newUrl) => {
+                  setCurrentAvatar(newUrl);
+                  onAvatarUpdate?.();
+               }}
             />
          </div>
       </form>

@@ -3,8 +3,8 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { apiClient } from '@/lib/http';
 import { passwordSchema, PasswordFormValues } from '../schemas';
+import { updateUserPassword } from '@/app/services/userService';
 import toast from 'react-hot-toast';
 import { PasswordInput, SaveButton, SectionTitle } from './SharedUI';
 
@@ -20,7 +20,7 @@ export default function PasswordForm() {
 
    const onSubmit = async (data: PasswordFormValues) => {
       try {
-         await apiClient.patch('/user/profile/updatePassword', {
+         await updateUserPassword({
             currentPassword: data.currentPassword,
             newPassword: data.newPassword,
             confirmPassword: data.confirmPassword,
@@ -29,9 +29,7 @@ export default function PasswordForm() {
          toast.success('Password updated successfully!');
       } catch (error: any) {
          console.error(error);
-         toast.error(
-            error.response?.data?.message || 'Failed to update password'
-         );
+         toast.error(error.message || 'Failed to update password');
       }
    };
 

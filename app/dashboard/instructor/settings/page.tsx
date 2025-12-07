@@ -1,29 +1,29 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { apiClient } from '@/lib/http';
+import { getUserProfile, UserProfile } from '@/app/services/userService';
 import AccountForm from './components/AccountForm';
 import PasswordForm from './components/PasswordForm';
 import NotificationSettings from './components/NotificationSettings';
 
 export default function SettingsPage() {
    const [isLoadingData, setIsLoadingData] = useState(true);
-   const [userData, setUserData] = useState(null);
+   const [userData, setUserData] = useState<UserProfile | null>(null);
 
    useEffect(() => {
-      const fetchProfile = async () => {
-         try {
-            const { data } = await apiClient.get('/user/profile');
-            setUserData(data.user);
-         } catch (error) {
-            console.error('Failed to fetch profile:', error);
-         } finally {
-            setIsLoadingData(false);
-         }
-      };
-
       fetchProfile();
    }, []);
+
+   const fetchProfile = async () => {
+      try {
+         const user = await getUserProfile();
+         setUserData(user);
+      } catch (error) {
+         console.error('Failed to fetch profile:', error);
+      } finally {
+         setIsLoadingData(false);
+      }
+   };
 
    if (isLoadingData) {
       return (
@@ -45,7 +45,7 @@ export default function SettingsPage() {
 
          <div className="flex flex-col gap-8">
             {/* 1. Account Settings Section */}
-            <AccountForm userData={userData} />
+            <AccountForm userData={userData} onAvatarUpdate={fetchProfile} />
 
             {/* 2. Bottom Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">

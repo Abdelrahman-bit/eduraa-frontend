@@ -11,6 +11,7 @@ import {
    LogOut,
    LucideIcon,
 } from 'lucide-react';
+import { getUserProfile } from '@/app/services/userService';
 
 interface MenuItem {
    href: string;
@@ -20,9 +21,25 @@ interface MenuItem {
 
 export default function ProfileDropdown() {
    const [isOpen, setIsOpen] = useState(false);
+   const [userData, setUserData] = useState<any>(null);
+   const [isLoadingData, setIsLoadingData] = useState(true);
    const dropdownRef = useRef<HTMLDivElement>(null);
    const { user, logout } = useBearStore();
    const router = useRouter();
+
+   useEffect(() => {
+      fetchProfile();
+   }, []);
+   const fetchProfile = async () => {
+      try {
+         const user = await getUserProfile();
+         setUserData(user);
+      } catch (error) {
+         console.error('Failed to fetch profile:', error);
+      } finally {
+         setIsLoadingData(false);
+      }
+   };
 
    useEffect(() => {
       const handleClickOutside = (event: MouseEvent) => {
@@ -87,11 +104,11 @@ export default function ProfileDropdown() {
          >
             <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-gray-300 hover:border-orange-500 transition-colors">
                <Image
-                  src={user.avatar || '/avatar.png'}
-                  alt={`${user.name} profile picture`}
+                  src={userData?.avatar || '/avatar.png'}
+                  alt={`${userData?.name} profile picture`}
                   width={40}
                   height={40}
-                  className="object-cover"
+                  className="object-cover w-full h-full"
                />
             </div>
          </button>
