@@ -1,6 +1,6 @@
 import React from 'react';
-import DashboardStats from '@/components/dashboard/student/DashboardStats';
-import LastWatchedCourses from '@/components/dashboard/student/LastWatchedCourses';
+import DashboardStats from '@/components/student/DashboardStats';
+import LastWatchedCourses from '@/components/student/LastWatchedCourses';
 
 export default function StudentDashboardPage() {
    return (
