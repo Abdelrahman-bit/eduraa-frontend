@@ -11,9 +11,10 @@ import {
 
 interface SidebarProps {
    role: 'instructor' | 'student' | 'admin';
+   onLinkClick?: () => void;
 }
 
-export default function Sidebar({ role }: SidebarProps) {
+export default function Sidebar({ role, onLinkClick }: SidebarProps) {
    const { data: joinRequests } = useQuery({
       queryKey: ['joinRequests'],
       queryFn: getJoinRequests,
@@ -52,6 +53,7 @@ export default function Sidebar({ role }: SidebarProps) {
                <Link
                   key={index}
                   href={item.href}
+                  onClick={onLinkClick}
                   className={`flex items-center justify-between px-6 py-3 hover:bg-gray-800 hover:text-white transition-colors ${
                      pathname === item.href ? 'bg-[#ff5b2e] text-white' : ''
                   }`}

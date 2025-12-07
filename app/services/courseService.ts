@@ -44,6 +44,12 @@ export interface CourseDTO {
       sections: SectionDTO[];
    };
    slug: string;
+   instructor?:
+      | string
+      | { _id: string; firstname: string; lastname: string; email: string };
+   createdAt?: string;
+   updatedAt?: string;
+   students?: number;
 }
 
 export type CourseAdvancedInfoPayload = {
@@ -56,6 +62,22 @@ export type CourseAdvancedInfoPayload = {
    thumbnail?: CourseMedia;
    trailer?: CourseMedia;
 };
+
+export interface InstructorStats {
+   totalCourses: number;
+   activeCourses: number;
+   draftCourses: number;
+   reviewCourses: number;
+   totalStudents: number;
+   chartData: { name: string; value: number; students: number }[];
+   recentActivity: {
+      _id: string;
+      type: string;
+      title: string;
+      message: string;
+      time: string;
+   }[];
+}
 
 export const createCourseDraft = async (payload: {
    basicInfo: CourseBasicInfo;
@@ -122,6 +144,7 @@ export const getInstructorDraftCourses = async () => {
 export const getInstructorCourses = async () => {
    const { data } =
       await apiClient.get<CourseResponse<CourseDTO[]>>('/courses');
+   console.log(data.data);
    return data.data;
 };
 
@@ -133,8 +156,21 @@ export const getCourseById = async (courseId: string) => {
 };
 
 export const deleteCourse = async (courseId: string) => {
-   const { data } = await apiClient.delete<CourseResponse<null>>(
-      `/courses/${courseId}`
-   );
+   console.log('🟡 deleteCourse service called with ID:', courseId);
+   try {
+      const { data } = await apiClient.delete<CourseResponse<null>>(
+         `/courses/${courseId}`
+      );
+      console.log('🟡 DELETE API response:', data);
+      return data.data;
+   } catch (error) {
+      console.error('🟡 DELETE API error:', error);
+      throw error;
+   }
+};
+
+export const getInstructorDashboardStats = async () => {
+   const { data } =
+      await apiClient.get<CourseResponse<InstructorStats>>('/instructor/stats');
    return data.data;
 };

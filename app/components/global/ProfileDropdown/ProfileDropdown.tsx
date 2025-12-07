@@ -4,7 +4,19 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import useBearStore from '@/app/store/useStore';
-import { User, BookOpen, LayoutDashboard, LogOut } from 'lucide-react';
+import {
+   User,
+   BookOpen,
+   LayoutDashboard,
+   LogOut,
+   LucideIcon,
+} from 'lucide-react';
+
+interface MenuItem {
+   href: string;
+   icon: LucideIcon;
+   label: string;
+}
 
 export default function ProfileDropdown() {
    const [isOpen, setIsOpen] = useState(false);
@@ -33,7 +45,39 @@ export default function ProfileDropdown() {
       router.push('/');
    };
 
+   const getMenuItems = (): MenuItem[] => {
+      if (!user) return [];
+
+      const isPrivileged = user.role === 'instructor' || user.role === 'admin';
+      const basePath =
+         user.role === 'admin' ? '/dashboard/admin' : '/dashboard/instructor';
+
+      if (isPrivileged) {
+         return [
+            { href: `${basePath}/settings`, icon: User, label: 'Settings' },
+            {
+               href: `${basePath}/courses`,
+               icon: BookOpen,
+               label: 'My Courses',
+            },
+            { href: basePath, icon: LayoutDashboard, label: 'Dashboard' },
+         ];
+      }
+
+      // Student menu items
+      return [
+         { href: '/courses', icon: BookOpen, label: 'My Courses' },
+         {
+            href: '/dashboard/student',
+            icon: LayoutDashboard,
+            label: 'Dashboard',
+         },
+      ];
+   };
+
    if (!user) return null;
+
+   const menuItems = getMenuItems();
 
    return (
       <div className="relative" ref={dropdownRef}>
@@ -65,38 +109,17 @@ export default function ProfileDropdown() {
                </div>
 
                <div className="py-1">
-                  <Link
-                     href="/profile"
-                     className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                     onClick={() => setIsOpen(false)}
-                  >
-                     <User size={16} />
-                     Profile
-                  </Link>
-
-                  <Link
-                     href="/courses"
-                     className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                     onClick={() => setIsOpen(false)}
-                  >
-                     <BookOpen size={16} />
-                     My Courses
-                  </Link>
-
-                  {(user.role === 'instructor' || user.role === 'admin') && (
+                  {menuItems.map((item) => (
                      <Link
-                        href={
-                           user.role === 'admin'
-                              ? '/dashboard/admin'
-                              : '/dashboard/instructor'
-                        }
+                        key={item.href}
+                        href={item.href}
                         className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                         onClick={() => setIsOpen(false)}
                      >
-                        <LayoutDashboard size={16} />
-                        Dashboard
+                        <item.icon size={16} />
+                        {item.label}
                      </Link>
-                  )}
+                  ))}
                </div>
 
                <div className="border-t border-gray-200 py-1">

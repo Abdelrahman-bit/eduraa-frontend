@@ -26,9 +26,9 @@ export const getSidebarItems = (
       case 'instructor':
          items = [
             {
-               label: 'Create New Course',
-               icon: PlusCircle,
-               href: '/dashboard/instructor/create-course',
+               label: 'dashboard',
+               icon: LayoutDashboard,
+               href: '/dashboard/instructor',
             },
             {
                label: 'My Courses',
@@ -36,24 +36,19 @@ export const getSidebarItems = (
                href: '/dashboard/instructor/courses',
             },
             {
+               label: 'Create New Course',
+               icon: PlusCircle,
+               href: '/dashboard/instructor/create-course',
+            },
+            {
                label: 'Messages',
                icon: MessageSquare,
                href: '/dashboard/instructor/messages',
             },
             {
-               label: 'Earnings',
-               icon: Wallet,
-               href: '/dashboard/instructor/earnings',
-            },
-            {
                label: 'settings',
                icon: Settings,
                href: '/dashboard/instructor/settings',
-            },
-            {
-               label: 'dashboard',
-               icon: LayoutDashboard,
-               href: '/dashboard/instructor',
             },
          ];
          break;
@@ -77,7 +72,6 @@ export const getSidebarItems = (
                icon: Users,
                href: '/dashboard/admin/instructors',
             },
-            ,
          ];
          break;
 

@@ -24,36 +24,36 @@ export function RatingCard({
             <span className="text-xs text-gray-400">This week ▼</span>
          </div>
 
-         <div className="flex gap-4 mb-8 items-stretch bg-orange-50/60 p-5 rounded-md border border-orange-100">
-            <div className="text-center flex flex-col justify-center min-w-[80px]">
-               <h3 className="text-4xl font-extrabold text-gray-900">
+         {/* Top Section: Score & Chart */}
+         <div className="grid grid-cols-2 gap-4 mb-8">
+            {/* Score Box */}
+            <div className="bg-[#FFF8F0] p-4 rounded-md flex flex-col items-center justify-center h-28">
+               <span className="text-3xl font-bold text-gray-900 mb-1">
                   {rating}
-               </h3>
-               <div className="flex text-orange-400 justify-center text-[10px] gap-0.5 mt-1">
+               </span>
+               <div className="flex gap-0.5 mb-1 text-[#FD8E1F]">
                   {[1, 2, 3, 4, 5].map((i) => (
                      <Star
                         key={i}
-                        size={10}
-                        fill="currentColor"
-                        className={
-                           i <= Math.round(rating)
-                              ? 'text-orange-400'
-                              : 'text-gray-300'
-                        }
+                        size={14}
+                        fill={i <= 4 ? 'currentColor' : 'none'} // Assuming rating ~4.x, simpler logic for now or specific
+                        strokeWidth={i <= 4 ? 0 : 2}
                      />
                   ))}
                </div>
-               <p className="text-[11px] text-gray-500 mt-1">Course Rating</p>
+               <span className="text-xs text-gray-500 font-medium">
+                  Overall Rating
+               </span>
             </div>
 
-            {/* Mini Chart */}
-            <div className="flex-1 h-20 w-full relative">
+            {/* Chart Box */}
+            <div className="bg-[#FFF8F0] p-0 rounded-md h-28 overflow-hidden relative">
                <ResponsiveContainer width="100%" height="100%">
                   <LineChart data={chartData}>
                      <Line
                         type="monotone"
                         dataKey="value"
-                        stroke="#FF6636"
+                        stroke="#FD8E1F"
                         strokeWidth={2}
                         dot={false}
                      />
@@ -66,20 +66,19 @@ export function RatingCard({
          <div className="space-y-3">
             {data.map((r) => (
                <div key={r.stars} className="flex items-center gap-3 text-sm">
-                  <div className="flex items-center gap-1.5 w-14 text-gray-500 font-medium text-xs">
-                     <Star
-                        size={12}
-                        className="text-orange-400 fill-orange-400"
-                     />
-                     {r.stars} Star
+                  <div className="flex items-center gap-1 w-16 shrink-0 text-[#FD8E1F]">
+                     <Star size={16} fill="currentColor" strokeWidth={0} />
+                     <span className="text-gray-600 font-medium ml-1">
+                        {r.stars} Star
+                     </span>
                   </div>
                   <div className="flex-1 h-2 bg-gray-100 rounded-full overflow-hidden">
                      <div
-                        className="h-full bg-orange-400 rounded-full"
+                        className="h-full bg-[#FD8E1F] rounded-full"
                         style={{ width: `${r.percent}%` }}
                      ></div>
                   </div>
-                  <span className="w-8 text-right text-gray-700 font-semibold text-xs">
+                  <span className="w-8 text-right text-gray-600 font-medium">
                      {r.percent}%
                   </span>
                </div>
