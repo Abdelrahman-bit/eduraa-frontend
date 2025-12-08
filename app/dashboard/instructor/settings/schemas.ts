@@ -4,8 +4,6 @@ import * as z from 'zod';
 export const accountSchema = z.object({
    firstName: z.string().min(1, 'First name is required'),
    lastName: z.string().min(1, 'Last name is required'),
-   // username field removed
-   phoneCode: z.string(),
    phoneNumber: z
       .string()
       .regex(/^\d+$/, 'Phone must be numbers only')
