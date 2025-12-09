@@ -1,40 +1,36 @@
 'use client';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import CourseCard, { CourseProps } from './CourseCard';
 import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { getMyCourses } from '@/app/services/studentService';
+import useBearStore from '@/app/store/useStore';
 
 const LastWatchedCourses = () => {
-   // data from api or backend (should be dynamic later)
-   const courses: CourseProps[] = [
-      {
-         id: 1,
-         category: 'Reiki Level I, II and Master/Teacher Program',
-         title: '1. Introductions',
-         image: 'https://img-c.udemycdn.com/course/750x422/394676_ce3d_5.jpg',
-         progress: 0,
-      },
-      {
-         id: 2,
-         category: 'The Complete 2024 Web Development Bootcamp',
-         title: "167. What You'll Need to Get Started",
-         image: 'https://img-c.udemycdn.com/course/750x422/1565838_e54e_18.jpg',
-         progress: 61,
-      },
-      {
-         id: 3,
-         category: 'Copywriting - Become a Freelance Copywriter',
-         title: '1. How to get started with figma',
-         image: 'https://img-c.udemycdn.com/course/750x422/405926_02c8_2.jpg',
-         progress: 0,
-      },
-      {
-         id: 4,
-         category: '2024 Complete Python Bootcamp From Zero',
-         title: '9. Advanced CSS - Selector Priority',
-         image: 'https://img-c.udemycdn.com/course/750x422/567828_67d0.jpg',
-         progress: 12,
-      },
-   ];
+   const [courses, setCourses] = useState<CourseProps[]>([]);
+   const { user } = useBearStore();
+
+   useEffect(() => {
+      const fetchLastWatched = async () => {
+         try {
+            const studentCourses = await getMyCourses();
+            // Just take first 4 for now as "Last Watched" proxy
+            const mapped = studentCourses.slice(0, 4).map((item) => ({
+               id: item.course._id,
+               title: item.course.basicInfo.title,
+               category: item.course.basicInfo.category,
+               image:
+                  item.course.advancedInfo?.thumbnailUrl ||
+                  'https://via.placeholder.com/750x422',
+               progress: item.progress || 0,
+            }));
+            setCourses(mapped);
+         } catch (error) {
+            console.error('Failed to fetch last watched courses', error);
+         }
+      };
+
+      fetchLastWatched();
+   }, []);
 
    return (
       <section>
@@ -42,7 +38,7 @@ const LastWatchedCourses = () => {
          <div className="flex justify-between items-end mb-6">
             <div>
                <h2 className="text-xl font-bold text-gray-900">
-                  Let’s start learning, Kevin
+                  Let’s start learning, {user?.name?.split(' ')[0] || 'Student'}
                </h2>
                <p className="text-sm text-gray-500 mt-1">
                   Pick up where you left off

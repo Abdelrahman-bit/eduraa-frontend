@@ -1,61 +1,45 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
 import CourseCard, { CourseProps } from '@/app/components/student/CourseCard';
+import { getMyCourses } from '@/app/services/studentService';
 
 export default function StudentCoursesPage() {
    const [searchQuery, setSearchQuery] = useState('');
    const [sortBy, setSortBy] = useState('Latest');
    const [statusFilter, setStatusFilter] = useState('All Courses');
+   const [courses, setCourses] = useState<CourseProps[]>([]);
+   const [isLoading, setIsLoading] = useState(true);
 
-   // fetch data from API later
-   const myCourses: CourseProps[] = [
-      {
-         id: 1,
-         category: 'Web Development',
-         title: 'The Complete 2024 Web Development Bootcamp',
-         image: 'https://img-c.udemycdn.com/course/750x422/1565838_e54e_18.jpg',
-         progress: 61,
-      },
-      {
-         id: 2,
-         category: 'Design',
-         title: 'Complete Adobe Lightroom Megacourse',
-         image: 'https://img-c.udemycdn.com/course/750x422/394676_ce3d_5.jpg',
-         progress: 25,
-      },
-      {
-         id: 3,
-         category: 'Marketing',
-         title: 'Instagram Marketing 2024',
-         image: 'https://img-c.udemycdn.com/course/750x422/405926_02c8_2.jpg',
-         progress: 100,
-      },
-      {
-         id: 4,
-         category: 'Software',
-         title: 'Adobe Premiere Pro CC',
-         image: 'https://img-c.udemycdn.com/course/750x422/567828_67d0.jpg',
-         progress: 0,
-      },
-      {
-         id: 5,
-         category: 'Development',
-         title: 'Machine Learning A-Z',
-         image: 'https://img-c.udemycdn.com/course/750x422/950390_270f_3.jpg',
-         progress: 12,
-      },
-      {
-         id: 6,
-         category: 'Photography',
-         title: 'Photography Masterclass',
-         image: 'https://img-c.udemycdn.com/course/750x422/1462428_639f_5.jpg',
-         progress: 45,
-      },
-   ];
+   useEffect(() => {
+      fetchCourses();
+   }, []);
+
+   const fetchCourses = async () => {
+      try {
+         setIsLoading(true);
+         const studentCourses = await getMyCourses();
+
+         const mappedCourses: CourseProps[] = studentCourses.map((item) => ({
+            id: item.course._id,
+            title: item.course.basicInfo.title,
+            category: item.course.basicInfo.category,
+            image:
+               item.course.advancedInfo?.thumbnailUrl ||
+               'https://via.placeholder.com/750x422',
+            progress: item.progress || 0, // Backend needs to calculate this
+            // We can also pass instructor info if we update CourseCard, but for now matching interface
+         }));
+         setCourses(mappedCourses);
+      } catch (error) {
+         console.error('Failed to fetch courses:', error);
+      } finally {
+         setIsLoading(false);
+      }
+   };
 
    // filter and sort courses based on user input
-   const filteredCourses = myCourses
+   const filteredCourses = courses
       .filter((course) => {
          // name filter
          const matchesSearch = course.title
@@ -77,12 +61,23 @@ export default function StudentCoursesPage() {
          if (sortBy === 'Title') {
             return a.title.localeCompare(b.title);
          } else if (sortBy === 'Oldest') {
-            return Number(a.id) - Number(b.id);
+            // Assuming ID isn't sortable this way if string, but for now keeping logic or maybe better to sort by index if we had date
+            return 0;
          } else {
-            // Latest (default)
-            return Number(b.id) - Number(a.id);
+            // Latest (default) - If we had date, we'd sort by date.
+            // Since we don't have date in CourseProps map, we might need to improve this.
+            // But let's leave it simple for now or use original order (latest first usually from DB)
+            return 0;
          }
       });
+
+   if (isLoading) {
+      return (
+         <div className="flex justify-center items-center py-20">
+            <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+         </div>
+      );
+   }
 
    return (
       <div className="space-y-8">

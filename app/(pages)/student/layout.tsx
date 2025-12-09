@@ -1,4 +1,5 @@
 import StudentHeader from '../../components/student/StudentHeader';
+import RouteGuard from '@/app/components/auth/RouteGuard';
 
 export default function StudentLayout({
    children,
@@ -7,6 +8,7 @@ export default function StudentLayout({
 }) {
    return (
       <div className="min-h-screen bg-gray-50 pb-10">
+         <RouteGuard type="protected" />
          <StudentHeader />
 
          <div className="container mx-auto px-4">

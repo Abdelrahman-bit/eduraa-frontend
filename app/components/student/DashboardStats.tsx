@@ -1,40 +1,58 @@
 'use client';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import StatCard from './StateCard';
 import { PlayCircle, CheckSquare, Trophy, Users } from 'lucide-react';
+import { getDashboardStats } from '@/app/services/studentService';
 
 const DashboardStats = () => {
-   // soon import data from backend
-   const stats = [
+   const [stats, setStats] = useState([
       {
          icon: PlayCircle,
-         number: 957,
+         number: 0,
          label: 'Enrolled Courses',
          bgColor: 'bg-orange-50',
          iconColor: 'text-orange-500',
       },
       {
          icon: CheckSquare,
-         number: 6,
+         number: 0,
          label: 'Active Courses',
          bgColor: 'bg-purple-50',
          iconColor: 'text-purple-500',
       },
       {
          icon: Trophy,
-         number: 951,
+         number: 0,
          label: 'Completed Courses',
          bgColor: 'bg-green-50',
          iconColor: 'text-green-500',
       },
       {
          icon: Users,
-         number: 241,
+         number: 0,
          label: 'Course Instructors',
          bgColor: 'bg-orange-50',
          iconColor: 'text-orange-500',
       },
-   ];
+   ]);
+
+   useEffect(() => {
+      const fetchStats = async () => {
+         try {
+            const data = await getDashboardStats();
+            setStats((prev) => [
+               { ...prev[0], number: data.enrolledCourses },
+               { ...prev[1], number: data.activeCourses },
+               { ...prev[2], number: data.completedCourses },
+               { ...prev[3], number: data.courseInstructors },
+            ]);
+         } catch (error) {
+            console.error('Failed to fetch dashboard stats', error);
+         }
+      };
+
+      fetchStats();
+   }, []);
 
    return (
       <section>

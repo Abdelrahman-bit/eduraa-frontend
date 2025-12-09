@@ -3,17 +3,19 @@ import React, { useState } from 'react';
 import { Star, Heart, ShoppingCart } from 'lucide-react';
 
 interface WishlistCardProps {
-   id: number;
+   id: number | string;
    image: string;
    title: string;
-   rating: number;
-   reviews: string;
-   price: number;
-   originalPrice: number;
+   rating?: number;
+   reviews?: string;
+   price?: number;
+   originalPrice?: number;
    instructor: string;
+   onRemove?: (id: number | string) => void;
 }
 
 const WishlistCard = ({
+   id,
    image,
    title,
    rating,
@@ -21,14 +23,22 @@ const WishlistCard = ({
    price,
    originalPrice,
    instructor,
+   onRemove,
 }: WishlistCardProps) => {
    const [isLiked, setIsLiked] = useState(true);
+
+   const handleLikeClick = () => {
+      setIsLiked(!isLiked);
+      if (isLiked && onRemove) {
+         onRemove(id);
+      }
+   };
 
    return (
       <div className="flex flex-col md:flex-row items-center gap-6 bg-white p-4 border-b border-gray-100 last:border-0 hover:bg-gray-50 transition-colors">
          <div className="w-full md:w-48 h-32 rounded-lg overflow-hidden shrink-0">
             <img
-               src={image}
+               src={image || 'https://via.placeholder.com/300'}
                alt={title}
                className="w-full h-full object-cover"
             />
@@ -47,7 +57,7 @@ const WishlistCard = ({
 
          <div className="flex items-center gap-3 w-full md:w-auto mt-4 md:mt-0">
             <button
-               onClick={() => setIsLiked(!isLiked)}
+               onClick={handleLikeClick}
                className={`p-3 rounded transition-all duration-300 ${
                   isLiked
                      ? 'bg-[#FFEEE8] text-[#FF6636]'

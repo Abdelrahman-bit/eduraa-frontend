@@ -1,40 +1,56 @@
 'use client';
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import WishlistCard from '@/app/components/student/WishlistCard';
+import {
+   getWishlist,
+   WishlistItem,
+   removeFromWishlist,
+} from '@/app/services/studentService';
+import toast from 'react-hot-toast';
 
 export default function WishlistPage() {
-   const wishlistItems = [
-      {
-         id: 1,
-         image: 'https://img-c.udemycdn.com/course/750x422/1565838_e54e_18.jpg',
-         rating: 4.6,
-         reviews: '451,444 Review',
-         title: 'The Ultimate Drawing Course - Beginner to Advanced',
-         instructor: 'Harry Potter',
-         price: 37.0,
-         originalPrice: 49.0,
-      },
-      {
-         id: 2,
-         image: 'https://img-c.udemycdn.com/course/750x422/394676_ce3d_5.jpg',
-         rating: 4.8,
-         reviews: '451,444 Review',
-         title: 'Digital Marketing Masterclass - 23 Courses in 1',
-         instructor: 'Nobody',
-         price: 24.0,
-         originalPrice: 80.0,
-      },
-      {
-         id: 3,
-         image: 'https://img-c.udemycdn.com/course/750x422/756150_c033_2.jpg',
-         rating: 4.7,
-         reviews: '451,444 Review',
-         title: 'Angular - The Complete Guide (2021 Edition)',
-         instructor: 'Kevin Gilbert',
-         price: 13.0,
-         originalPrice: 20.0,
-      },
-   ];
+   const [wishlistItems, setWishlistItems] = useState<WishlistItem[]>([]);
+   const [isLoading, setIsLoading] = useState(true);
+
+   useEffect(() => {
+      fetchWishlist();
+   }, []);
+
+   const fetchWishlist = async () => {
+      try {
+         setIsLoading(true);
+         const data = await getWishlist();
+         setWishlistItems(data);
+      } catch (error) {
+         console.error('Failed to fetch wishlist', error);
+         toast.error('Failed to load wishlist');
+      } finally {
+         setIsLoading(false);
+      }
+   };
+
+   const handleRemove = async (courseId: string | number) => {
+      // Convert to string safely
+      const idStr = String(courseId);
+      try {
+         await removeFromWishlist(idStr);
+         setWishlistItems((prev) =>
+            prev.filter((item) => item.course._id !== idStr)
+         );
+         toast.success('Removed from wishlist');
+      } catch (error) {
+         console.error('Failed to remove from wishlist', error);
+         toast.error('Failed to remove item');
+      }
+   };
+
+   if (isLoading) {
+      return (
+         <div className="flex justify-center items-center py-20">
+            <div className="w-8 h-8 border-4 border-orange-500 border-t-transparent rounded-full animate-spin"></div>
+         </div>
+      );
+   }
 
    return (
       <div className="space-y-6">
@@ -51,9 +67,29 @@ export default function WishlistPage() {
             </div>
 
             <div className="divide-y divide-gray-100">
-               {wishlistItems.map((item) => (
-                  <WishlistCard key={item.id} {...item} />
-               ))}
+               {wishlistItems.length > 0 ? (
+                  wishlistItems.map((item) => (
+                     <WishlistCard
+                        key={item._id}
+                        id={item.course._id}
+                        image={
+                           item.course.advancedInfo?.thumbnailUrl ||
+                           'https://via.placeholder.com/300'
+                        }
+                        title={item.course.basicInfo.title}
+                        rating={0}
+                        reviews="0 Reviews"
+                        instructor={`${item.course.instructor.firstname} ${item.course.instructor.lastname}`}
+                        price={item.course.basicInfo.price}
+                        originalPrice={item.course.basicInfo.price}
+                        onRemove={handleRemove}
+                     />
+                  ))
+               ) : (
+                  <div className="text-center py-10 text-gray-500">
+                     Your wishlist is empty.
+                  </div>
+               )}
             </div>
          </div>
       </div>

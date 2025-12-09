@@ -83,9 +83,9 @@ export default function ProfileDropdown() {
 
       // Student menu items
       return [
-         { href: '/courses', icon: BookOpen, label: 'My Courses' },
+         { href: '/student/courses', icon: BookOpen, label: 'My Courses' },
          {
-            href: '/dashboard/student',
+            href: '/student/dashboard',
             icon: LayoutDashboard,
             label: 'Dashboard',
          },

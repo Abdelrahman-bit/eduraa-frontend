@@ -24,7 +24,7 @@ const InstructorCard = ({ id, name, title, image }: InstructorProps) => {
 
          <div className="w-full mt-auto flex gap-3">
             <Link
-               href={`/student/instructors/${id}`}
+               href={`/instructors/${id}`}
                className="flex-1 bg-[#FF6636] text-white py-3 rounded-md font-semibold text-sm hover:bg-[#fa8662] transition-colors duration-300 flex items-center justify-center"
             >
                Profile

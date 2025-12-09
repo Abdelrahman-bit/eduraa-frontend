@@ -148,6 +148,13 @@ export const getInstructorCourses = async () => {
    return data.data;
 };
 
+export const getPublicInstructorCourses = async (instructorId: string) => {
+   const { data } = await apiClient.get<CourseResponse<CourseDTO[]>>(
+      `/courses/instructor/${instructorId}`
+   );
+   return data.data;
+};
+
 export const getCourseById = async (courseId: string) => {
    const { data } = await apiClient.get<CourseResponse<CourseDTO>>(
       `/courses/${courseId}`

@@ -44,6 +44,13 @@ export default function RouteGuard({ type, role }: RouteGuardProps) {
                router.replace('/');
             }
          }
+         // If the route is for students only
+         else if (pathname.startsWith('/student')) {
+            if (userRole === 'instructor') {
+               // Instructors shouldn't be in student area (unless they are also students, but requirement says restrict)
+               router.replace('/dashboard/instructor');
+            }
+         }
       }
    }, [isAuthenticated, loading, user, pathname, router, type]);
 
