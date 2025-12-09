@@ -33,7 +33,7 @@ export default function Sidebar({ role }: SidebarProps) {
    const pathname = usePathname();
 
    return (
-      <aside className="w-64 bg-[#1D2026] text-gray-400 flex flex-col h-screen fixed left-0 top-0 border-r border-gray-800 z-50">
+      <aside className="w-64 bg-[#1D2026] text-gray-400 flex flex-col h-screen overflow-y-auto border-r border-gray-800">
          {/* Logo Area */}
          <Link href="/" className="no-underline">
             <div className="h-20 flex items-center px-6 border-b border-gray-800 cursor-pointer">
@@ -70,7 +70,7 @@ export default function Sidebar({ role }: SidebarProps) {
          </nav>
 
          {/* Footer of Sidebar */}
-         <div className="p-6 border-t border-gray-800">
+         <div className="p-6 border-t border-gray-800 shrink-0">
             <button className="flex items-center gap-3 text-sm font-medium hover:text-white transition-colors w-full">
                <LogOut size={20} />
                Sign-out
