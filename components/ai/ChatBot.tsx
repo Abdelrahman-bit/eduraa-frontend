@@ -5,7 +5,6 @@ import { useChat } from '@ai-sdk/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MessageCircle, X, Send, Bot, User, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { apiClient } from '@/lib/http';
 import ReactMarkdown from 'react-markdown';
 
 export default function ChatBot() {
