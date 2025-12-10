@@ -1,6 +1,5 @@
 import { apiClient } from '@/lib/http';
 import { uploadToCloudinary } from '@/lib/cloudinary';
-import { CourseResponse } from './courseService';
 
 export interface UserProfile {
    id: number;
@@ -8,7 +7,7 @@ export interface UserProfile {
    firstname: string;
    lastname: string;
    phone?: string;
-   title?: string;
+   headline?: string;
    biography?: string;
    avatar?: string;
    role: 'student' | 'instructor' | 'admin';
@@ -52,26 +51,6 @@ export const getUserProfile = async (): Promise<UserProfile> => {
       const { data } =
          await apiClient.get<UserProfileResponse>('/user/profile');
       return data.user;
-   } catch (error: any) {
-      throw new Error(
-         error.response?.data?.message || 'Failed to fetch user profile'
-      );
-   }
-};
-
-/**
- * Fetch a public user profile by ID
- * @param id - The user ID
- * @returns User profile data
- */
-export const getPublicUserProfile = async (
-   id: string
-): Promise<UserProfile> => {
-   try {
-      const { data } = await apiClient.get<CourseResponse<UserProfile>>(
-         `/user/${id}`
-      );
-      return data.data; // Assuming wrapper response structure matched CourseResponse style or standard {data: user}
    } catch (error: any) {
       throw new Error(
          error.response?.data?.message || 'Failed to fetch user profile'
