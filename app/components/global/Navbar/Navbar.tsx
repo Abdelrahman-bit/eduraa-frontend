@@ -11,8 +11,18 @@ import useBearStore from '@/app/store/useStore';
 
 export default function Navbar() {
    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-   const { user, isAuthenticated, initializeAuth } = useBearStore();
+   const [isHydrated, setIsHydrated] = useState(false);
+   const { user, isAuthenticated, loading, initializeAuth } = useBearStore();
 
+   // Handle hydration mismatch
+   useEffect(() => {
+      const timer = setTimeout(() => {
+         setIsHydrated(true);
+      }, 0);
+      return () => clearTimeout(timer);
+   }, []);
+
+   // Initialize auth
    useEffect(() => {
       initializeAuth();
    }, [initializeAuth]);
@@ -26,7 +36,7 @@ export default function Navbar() {
                   <Link href="/">Home</Link>
                </li>
                <li>
-                  <Link href="/courses">Courses</Link>
+                  <Link href="/all-courses">Courses</Link>
                </li>
                <li>
                   <Link href="/about">About</Link>
@@ -37,11 +47,9 @@ export default function Navbar() {
             </ul>
             <ul className="flex gap-8 p-4">
                <li>
-                  {/* //TODO */}
                   <Link href="/mode">Dark</Link>
                </li>
                <li>
-                  {/* //TODO */}
                   <Link href="/language">English</Link>
                </li>
             </ul>
@@ -93,7 +101,13 @@ export default function Navbar() {
                </div>
 
                {/* Auth Section */}
-               {isAuthenticated && user ? (
+               {!isHydrated || loading ? (
+                  // Skeleton for auth buttons while loading
+                  <div className="flex gap-3 items-center">
+                     <div className="hidden sm:block h-10 w-36 bg-gray-200 rounded animate-pulse" />
+                     <div className="h-10 w-20 bg-gray-200 rounded animate-pulse" />
+                  </div>
+               ) : isAuthenticated && user ? (
                   <ProfileDropdown />
                ) : (
                   <>
@@ -172,15 +186,24 @@ export default function Navbar() {
                   </div>
 
                   {/* Mobile Auth Buttons */}
-                  {!isAuthenticated && (
+                  {loading ? (
                      <div className="flex flex-col gap-2 border-t pt-4 sm:hidden">
-                        <Link
-                           href="/auth/signup"
-                           onClick={() => setIsMobileMenuOpen(false)}
-                        >
-                           <Button text="Create an Account" type="secondary" />
-                        </Link>
+                        <div className="h-10 w-full bg-gray-200 rounded animate-pulse" />
                      </div>
+                  ) : (
+                     !isAuthenticated && (
+                        <div className="flex flex-col gap-2 border-t pt-4 sm:hidden">
+                           <Link
+                              href="/auth/signup"
+                              onClick={() => setIsMobileMenuOpen(false)}
+                           >
+                              <Button
+                                 text="Create an Account"
+                                 type="secondary"
+                              />
+                           </Link>
+                        </div>
+                     )
                   )}
                </div>
             </div>

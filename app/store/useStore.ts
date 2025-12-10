@@ -25,14 +25,29 @@ const useBearStore = create<BearStore>((set) => ({
    initializeAuth: () => {
       if (typeof window !== 'undefined') {
          const token = localStorage.getItem('token');
-         if (token) {
+         const userStr = localStorage.getItem('user');
+
+         if (token && userStr && userStr !== 'undefined') {
             try {
-               const decoded = jwtDecode<User>(token);
-               console.log('Decoded token:', decoded);
-               set({ user: decoded, isAuthenticated: true, loading: false });
+               const user = JSON.parse(userStr);
+               // Verify token is still valid
+               const decoded = jwtDecode<{ exp?: number; role?: string }>(
+                  token
+               );
+               const currentTime = Date.now() / 1000;
+
+               if (decoded.exp && decoded.exp > currentTime) {
+                  set({ user, isAuthenticated: true, loading: false });
+               } else {
+                  // Token expired
+                  localStorage.removeItem('token');
+                  localStorage.removeItem('user');
+                  set({ user: null, isAuthenticated: false, loading: false });
+               }
             } catch (error) {
                console.error('Invalid token:', error);
                localStorage.removeItem('token');
+               localStorage.removeItem('user');
                set({ user: null, isAuthenticated: false, loading: false });
             }
          } else {

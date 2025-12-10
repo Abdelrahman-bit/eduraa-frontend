@@ -1,5 +1,6 @@
-import { Course } from '@/app/(pages)/courses/page';
+import { Course } from '@/app/(pages)/my-courses/page';
 import Image from 'next/image';
+import Link from 'next/link';
 
 interface CourseCardProps {
    course: Course;
@@ -7,7 +8,8 @@ interface CourseCardProps {
 
 export const CourseCard: React.FC<CourseCardProps> = ({ course }) => {
    return (
-      <div
+      <Link
+         href={`/my-courses/${course.id}`}
          className={`relative group flex flex-col bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all duration-200 h-full`}
       >
          {/* Image Section */}
@@ -39,17 +41,17 @@ export const CourseCard: React.FC<CourseCardProps> = ({ course }) => {
             <div className="mt-4">
                {course.progress !== undefined && course.progress > 0 ? (
                   <div className="flex items-center justify-between gap-3">
-                     <button className="flex-1 text-xs font-semibold py-2.5 px-4 rounded shadow-sm transition-colors text-center cursor-pointer bg-orange-500 hover:bg-orange-600 text-white">
-                        Watch Lecture
-                     </button>
+                     <span className="flex-1 text-xs font-semibold py-2.5 px-4 rounded shadow-sm transition-colors text-center bg-orange-500 hover:bg-orange-600 text-white">
+                        Continue Learning
+                     </span>
                      <span className="text-xs font-semibold text-green-500 whitespace-nowrap">
                         {course.progress}% completed
                      </span>
                   </div>
                ) : (
-                  <button className="w-full text-xs font-semibold py-2.5 px-4 rounded shadow-sm transition-colors text-center cursor-pointer bg-orange-50 hover:bg-orange-100 text-orange-600">
-                     Watch Lecture
-                  </button>
+                  <span className="block w-full text-xs font-semibold py-2.5 px-4 rounded shadow-sm transition-colors text-center bg-orange-50 hover:bg-orange-100 text-orange-600">
+                     Start Learning
+                  </span>
                )}
             </div>
          </div>
@@ -59,6 +61,6 @@ export const CourseCard: React.FC<CourseCardProps> = ({ course }) => {
                style={{ width: `${course.progress}%` }}
             />
          )}
-      </div>
+      </Link>
    );
 };

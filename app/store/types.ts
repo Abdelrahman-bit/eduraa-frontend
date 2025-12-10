@@ -3,7 +3,9 @@
 // 1. Define the shape of your state
 export interface User {
    id: number;
-   name: string;
+   name?: string;
+   firstName?: string;
+   lastName?: string;
    email: string;
    role: 'student' | 'instructor' | 'admin';
    avatar?: string;
@@ -73,6 +75,7 @@ export interface Lecture {
    description: string;
    notes: string;
    video?: File | UploadedMedia | null;
+   attachments?: { title: string; file: UploadedMedia }[];
    order?: number;
 }
 

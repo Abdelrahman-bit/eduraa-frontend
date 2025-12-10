@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { jwtDecode } from 'jwt-decode';
 import useBearStore from '@/app/store/useStore';
 import { login } from '@/app/services/authService';
+import { jwtDecode } from 'jwt-decode';
 
 export default function LoginForm() {
    const router = useRouter();
