@@ -47,8 +47,10 @@ export default function CourseDetailsPage({
       addToWishlist,
       removeFromWishlist,
       isCourseInWishlist,
+      user,
    } = useBearStore();
    const isWishlisted = isCourseInWishlist(courseId);
+   const isStudent = user?.role === 'student';
    const [openSections, setOpenSections] = useState<string[]>([]);
    const [initialSectionOpened, setInitialSectionOpened] = useState(false);
    const [isEnrolled, setIsEnrolled] = useState(false);
@@ -712,27 +714,30 @@ export default function CourseDetailsPage({
                            {enrolling ? 'Enrolling...' : 'Enroll Now'}
                         </button>
 
-                        <button
-                           onClick={() => {
-                              if (!isAuthenticated)
-                                 return toast.error('Please login first');
-                              if (isWishlisted) removeFromWishlist(course._id);
-                              else addToWishlist(course._id);
-                           }}
-                           className="w-full py-3 px-6 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold text-base rounded-lg transition-colors flex items-center justify-center gap-2"
-                        >
-                           {isWishlisted ? (
-                              <>
-                                 <IoMdHeart className="w-5 h-5 text-red-500" />
-                                 <span>Remove from Wishlist</span>
-                              </>
-                           ) : (
-                              <>
-                                 <IoMdHeartEmpty className="w-5 h-5" />
-                                 <span>Add to Wishlist</span>
-                              </>
-                           )}
-                        </button>
+                        {isStudent && (
+                           <button
+                              onClick={() => {
+                                 if (!isAuthenticated)
+                                    return toast.error('Please login first');
+                                 if (isWishlisted)
+                                    removeFromWishlist(course._id);
+                                 else addToWishlist(course._id);
+                              }}
+                              className="w-full py-3 px-6 bg-white border border-gray-200 hover:bg-gray-50 text-gray-700 font-semibold text-base rounded-lg transition-colors flex items-center justify-center gap-2"
+                           >
+                              {isWishlisted ? (
+                                 <>
+                                    <IoMdHeart className="w-5 h-5 text-red-500" />
+                                    <span>Remove from Wishlist</span>
+                                 </>
+                              ) : (
+                                 <>
+                                    <IoMdHeartEmpty className="w-5 h-5" />
+                                    <span>Add to Wishlist</span>
+                                 </>
+                              )}
+                           </button>
+                        )}
                      </div>
                   )}
 

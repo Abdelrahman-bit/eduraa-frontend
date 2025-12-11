@@ -15,8 +15,8 @@ const useBearStore = create<BearStore>((set, get) => ({
 
    // --- ACTIONS ---
    fetchEnrolledCourses: async () => {
-      const { isAuthenticated } = get();
-      if (!isAuthenticated) return;
+      const { isAuthenticated, user } = get();
+      if (!isAuthenticated || user?.role !== 'student') return;
 
       try {
          const { data } = await apiClient.get('/student/my-courses');
@@ -54,8 +54,8 @@ const useBearStore = create<BearStore>((set, get) => ({
    },
 
    fetchWishlist: async () => {
-      const { isAuthenticated } = get();
-      if (!isAuthenticated) return;
+      const { isAuthenticated, user } = get();
+      if (!isAuthenticated || user?.role !== 'student') return;
 
       try {
          const { data } = await apiClient.get('/student/wishlist');
@@ -72,8 +72,8 @@ const useBearStore = create<BearStore>((set, get) => ({
    },
 
    addToWishlist: async (courseId: string) => {
-      const { isAuthenticated, wishlist } = get();
-      if (!isAuthenticated) return;
+      const { isAuthenticated, wishlist, user } = get();
+      if (!isAuthenticated || user?.role !== 'student') return;
 
       // Optimistic update: Add placeholder or rely on UI to toggle immediately
       // Ideally we need course details to add to wishlist state instantly.
@@ -93,8 +93,8 @@ const useBearStore = create<BearStore>((set, get) => ({
    },
 
    removeFromWishlist: async (courseId: string) => {
-      const { isAuthenticated, wishlist } = get();
-      if (!isAuthenticated) return;
+      const { isAuthenticated, wishlist, user } = get();
+      if (!isAuthenticated || user?.role !== 'student') return;
 
       // Optimistic update
       set({
@@ -133,23 +133,29 @@ const useBearStore = create<BearStore>((set, get) => ({
                      try {
                         const user = JSON.parse(userStr);
                         set({ user, isAuthenticated: true, loading: false });
-                        get().fetchWishlist();
-                        get().fetchEnrolledCourses();
+                        if (user.role === 'student') {
+                           get().fetchWishlist();
+                           get().fetchEnrolledCourses();
+                        }
                      } catch (e) {
                         console.error('Store: Error parsing user', e);
                         const user = await getUserProfile();
                         localStorage.setItem('user', JSON.stringify(user));
                         set({ user, isAuthenticated: true, loading: false });
-                        get().fetchWishlist();
-                        get().fetchEnrolledCourses();
+                        if (user.role === 'student') {
+                           get().fetchWishlist();
+                           get().fetchEnrolledCourses();
+                        }
                      }
                   } else {
                      try {
                         const user = await getUserProfile();
                         localStorage.setItem('user', JSON.stringify(user));
                         set({ user, isAuthenticated: true, loading: false });
-                        get().fetchWishlist();
-                        get().fetchEnrolledCourses();
+                        if (user.role === 'student') {
+                           get().fetchWishlist();
+                           get().fetchEnrolledCourses();
+                        }
                      } catch (fetchError) {
                         localStorage.removeItem('token');
                         localStorage.removeItem('user');
