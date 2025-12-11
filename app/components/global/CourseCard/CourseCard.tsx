@@ -1,15 +1,58 @@
-import { Course } from '@/app/(pages)/my-courses/page';
 import Image from 'next/image';
 import Link from 'next/link';
+import { IoMdHeart, IoMdHeartEmpty } from 'react-icons/io';
+import useBearStore from '@/app/store/useStore';
+import { MouseEvent } from 'react';
+
+export interface Course {
+   id: string;
+   image: string;
+   category: string;
+   title: string;
+   progress?: number;
+}
 
 interface CourseCardProps {
    course: Course;
+   hideWishlist?: boolean;
 }
 
-export const CourseCard: React.FC<CourseCardProps> = ({ course }) => {
+export const CourseCard: React.FC<CourseCardProps> = ({
+   course,
+   hideWishlist = false,
+}) => {
+   const {
+      addToWishlist,
+      removeFromWishlist,
+      isCourseInWishlist,
+      isCourseEnrolled,
+      isAuthenticated,
+   } = useBearStore();
+   const isWishlisted = isCourseInWishlist(course.id);
+   const isEnrolled = isCourseEnrolled(course.id);
+
+   // Effectively hide wishlist if explicitly asked OR if user is enrolled
+   const shouldHideWishlist = hideWishlist || isEnrolled;
+
+   const handleWishlistToggle = (e: MouseEvent) => {
+      e.preventDefault(); // Prevent link navigation
+      e.stopPropagation();
+
+      if (!isAuthenticated) {
+         // Optionally toast "Please login"
+         return;
+      }
+
+      if (isWishlisted) {
+         removeFromWishlist(course.id);
+      } else {
+         addToWishlist(course.id);
+      }
+   };
+
    return (
       <Link
-         href={`/my-courses/${course.id}`}
+         href={`/student/courses/${course.id}`}
          className={`relative group flex flex-col bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition-all duration-200 h-full`}
       >
          {/* Image Section */}
@@ -22,6 +65,20 @@ export const CourseCard: React.FC<CourseCardProps> = ({ course }) => {
                fill
             />
             <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors" />
+
+            {/* Wishlist Button */}
+            {!shouldHideWishlist && (
+               <button
+                  onClick={handleWishlistToggle}
+                  className="absolute top-2 right-2 p-2 bg-white/90 rounded-full hover:bg-white transition-colors z-10"
+               >
+                  {isWishlisted ? (
+                     <IoMdHeart className="w-5 h-5 text-red-500" />
+                  ) : (
+                     <IoMdHeartEmpty className="w-5 h-5 text-gray-500" />
+                  )}
+               </button>
+            )}
          </div>
 
          {/* Content Section */}
@@ -39,18 +96,24 @@ export const CourseCard: React.FC<CourseCardProps> = ({ course }) => {
 
             {/* Footer Section */}
             <div className="mt-4">
-               {course.progress !== undefined && course.progress > 0 ? (
-                  <div className="flex items-center justify-between gap-3">
-                     <span className="flex-1 text-xs font-semibold py-2.5 px-4 rounded shadow-sm transition-colors text-center bg-orange-500 hover:bg-orange-600 text-white">
-                        Continue Learning
+               {course.progress !== undefined ? (
+                  course.progress > 0 ? (
+                     <div className="flex items-center justify-between gap-3">
+                        <span className="flex-1 text-xs font-semibold py-2.5 px-4 rounded shadow-sm transition-colors text-center bg-orange-500 hover:bg-orange-600 text-white">
+                           Continue Learning
+                        </span>
+                        <span className="text-xs font-semibold text-green-500 whitespace-nowrap">
+                           {course.progress}% completed
+                        </span>
+                     </div>
+                  ) : (
+                     <span className="block w-full text-xs font-semibold py-2.5 px-4 rounded shadow-sm transition-colors text-center bg-orange-50 hover:bg-orange-100 text-orange-600">
+                        Start Learning
                      </span>
-                     <span className="text-xs font-semibold text-green-500 whitespace-nowrap">
-                        {course.progress}% completed
-                     </span>
-                  </div>
+                  )
                ) : (
-                  <span className="block w-full text-xs font-semibold py-2.5 px-4 rounded shadow-sm transition-colors text-center bg-orange-50 hover:bg-orange-100 text-orange-600">
-                     Start Learning
+                  <span className="block w-full text-xs font-semibold py-2.5 px-4 rounded shadow-sm transition-colors text-center bg-gray-50 hover:bg-gray-100 text-gray-600">
+                     View Details
                   </span>
                )}
             </div>

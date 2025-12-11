@@ -34,9 +34,9 @@ export const getSidebarItems = (
       case 'instructor':
          items = [
             {
-               label: 'Create New Course',
-               icon: PlusCircle,
-               href: '/dashboard/instructor/create-course',
+               label: 'dashboard',
+               icon: LayoutDashboard,
+               href: '/dashboard/instructor',
             },
             {
                label: 'My Courses',
@@ -44,24 +44,19 @@ export const getSidebarItems = (
                href: '/dashboard/instructor/courses',
             },
             {
+               label: 'Create New Course',
+               icon: PlusCircle,
+               href: '/dashboard/instructor/create-course',
+            },
+            {
                label: 'Messages',
                icon: MessageSquare,
                href: '/dashboard/instructor/messages',
             },
             {
-               label: 'Earnings',
-               icon: Wallet,
-               href: '/dashboard/instructor/earnings',
-            },
-            {
                label: 'settings',
                icon: Settings,
                href: '/dashboard/instructor/settings',
-            },
-            {
-               label: 'dashboard',
-               icon: LayoutDashboard,
-               href: '/dashboard/instructor',
             },
          ];
          break;
@@ -89,32 +84,6 @@ export const getSidebarItems = (
                label: 'Instructors',
                icon: Users,
                href: '/dashboard/admin/instructors',
-            },
-            {
-               label: 'Students',
-               icon: GraduationCap,
-               href: '/dashboard/admin/students',
-            },
-            {
-               label: 'All Courses',
-               icon: BookOpen,
-               href: '/dashboard/admin/courses',
-            },
-            {
-               label: 'Manage Halls',
-               icon: Building,
-               href: '/dashboard/admin/halls',
-            },
-            {
-               label: 'Booking Requests',
-               icon: CalendarCheck,
-               href: '/dashboard/admin/bookings',
-               badge: counts?.bookingRequests,
-            },
-            {
-               label: 'Settings',
-               icon: Settings,
-               href: '/dashboard/admin/settings',
             },
          ];
          break;

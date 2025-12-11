@@ -31,16 +31,20 @@ export default function InstructorCoursesPage() {
    const deleteMutation = useMutation({
       mutationFn: deleteCourse,
       onSuccess: () => {
+         console.log('✅ DELETE SUCCESS - Course deleted');
          toast.success('Course deleted successfully');
          queryClient.invalidateQueries({ queryKey: ['instructorCourses'] });
       },
       onError: (error) => {
+         console.error('❌ DELETE ERROR:', error);
          toast.error(error.message || 'Failed to delete course');
       },
    });
 
    const handleDelete = (courseId: string) => {
+      console.log('🔵 handleDelete called with courseId:', courseId);
       deleteMutation.mutate(courseId);
+      console.log('🔵 deleteMutation.mutate() called');
    };
 
    if (isLoading) {

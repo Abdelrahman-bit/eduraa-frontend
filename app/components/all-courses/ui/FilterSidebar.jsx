@@ -58,6 +58,10 @@ const FilterSidebar = ({
    setSelectedRatings,
    selectedLevels,
    setSelectedLevels,
+   categories = CATEGORIES,
+   tools = TOOLS,
+   ratings = RATINGS,
+   levels = LEVELS,
 }) => {
    const toggleCategory = (categoryName) => {
       setSelectedCategories((prev) =>
@@ -93,7 +97,7 @@ const FilterSidebar = ({
 
    // Track which categories are expanded
    const [expandedCategories, setExpandedCategories] = useState(
-      CATEGORIES.reduce((acc, cat, idx) => {
+      categories.reduce((acc, cat, idx) => {
          if (cat.subcategories) acc[idx] = true;
          return acc;
       }, {})
@@ -109,7 +113,7 @@ const FilterSidebar = ({
    return (
       <aside
          className={`
-      fixed inset-y-0 left-0 z-40 w-72 bg-white border-r border-gray-200 transform transition-all duration-300 ease-in-out overflow-y-auto
+      fixed inset-y-0 left-0 z-20 w-72 bg-white border-r border-gray-200 transform transition-all duration-300 ease-in-out overflow-y-auto
       lg:relative lg:w-72
       ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       ${isDesktopOpen ? 'lg:block' : 'lg:hidden'}
@@ -147,7 +151,7 @@ const FilterSidebar = ({
 
             {/* Categories */}
             <FilterSection title="Category" isOpen={true}>
-               {CATEGORIES.map((cat, idx) => {
+               {categories.map((cat, idx) => {
                   const isExpanded = expandedCategories[idx];
 
                   return (
@@ -199,7 +203,7 @@ const FilterSidebar = ({
 
             {/* Tools */}
             <FilterSection title="Tools">
-               {TOOLS.map((tool, idx) => (
+               {tools.map((tool, idx) => (
                   <Checkbox
                      key={idx}
                      label={tool.name}
@@ -212,7 +216,7 @@ const FilterSidebar = ({
 
             {/* Rating */}
             <FilterSection title="Rating">
-               {RATINGS.map((rate, idx) => (
+               {ratings.map((rate, idx) => (
                   <Checkbox
                      key={idx}
                      checked={selectedRatings.includes(rate.stars)}
@@ -239,7 +243,7 @@ const FilterSidebar = ({
 
             {/* Course Level */}
             <FilterSection title="Course Level">
-               {LEVELS.map((level, idx) => (
+               {levels.map((level, idx) => (
                   <Checkbox
                      key={idx}
                      label={level.label}

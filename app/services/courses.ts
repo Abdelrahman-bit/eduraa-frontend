@@ -49,8 +49,10 @@ export interface Section {
 
 export interface Instructor {
    _id: string;
-   name: string;
+   firstname: string;
+   lastname: string;
    email: string;
+   avatar: string;
    id: string;
 }
 
@@ -142,6 +144,14 @@ export const fetchPublishedCourses = async (
    }
    return data;
 };
+
+export const fetchCoursesByInstructor = async (
+   instructorId: string
+): Promise<CoursesResponse> => {
+   const url = `/courses/instructor/${instructorId}`;
+   const { data } = await apiClient.get<CoursesResponse>(url);
+   return data;
+};
 export interface CourseDetailsResponse {
    status: string;
    data: Course;
@@ -227,11 +237,7 @@ export interface StudentCourse {
    course: Course;
    student: string;
    enrolledAt: string;
-   progress?: {
-      completedLectures: string[];
-      lastAccessedLecture?: string;
-      progressPercentage: number;
-   };
+   progress: number;
 }
 
 export interface MyCoursesResponse {
@@ -258,37 +264,14 @@ export const updateLectureProgress = async (
    courseId: string,
    lectureId: string,
    completed: boolean
-) => {
-   // Save to localStorage as fallback
-   if (typeof window !== 'undefined') {
-      const key = `course_progress_${courseId}`;
-      const stored = localStorage.getItem(key);
-      const progress = stored ? JSON.parse(stored) : { completedLectures: [] };
-
-      if (completed) {
-         if (!progress.completedLectures.includes(lectureId)) {
-            progress.completedLectures.push(lectureId);
-         }
-      } else {
-         progress.completedLectures = progress.completedLectures.filter(
-            (id: string) => id !== lectureId
-         );
-      }
-
-      localStorage.setItem(key, JSON.stringify(progress));
-   }
-
-   // Try to sync with server (optional)
-   try {
-      const url = `/student/my-courses/${courseId}/progress`;
-      const { data } = await apiClient.put(url, { lectureId, completed });
-      console.log('✅ Progress updated on server:', data);
-      return data;
-   } catch (error) {
-      console.log('⚠️ Server sync failed, using localStorage only');
-      // Silently fail - localStorage is the source of truth
-      return { success: true };
-   }
+): Promise<any> => {
+   const response = await apiClient.patch('/student/progress', {
+      courseId,
+      lectureId,
+      completed,
+      lastAccessed: new Date(),
+   });
+   return response.data;
 };
 
 export const getCourseProgress = async (courseId: string) => {
@@ -303,12 +286,13 @@ export const getCourseProgress = async (courseId: string) => {
 
    // Try to get from server
    try {
-      const url = `/student/my-courses/${courseId}/progress`;
+      const url = `/student/enrollment/${courseId}`;
       const { data } = await apiClient.get(url);
       console.log('✅ Progress fetched from server:', data);
-      return data;
+      return data; // Returns { status: 'success', data: { ...enrollment } }
    } catch (error) {
       console.log('⚠️ Server fetch failed, using localStorage only');
-      return { completedLectures: [] };
+      // If 404, returns null or empty structure, handled by component
+      return null;
    }
 };

@@ -1,9 +1,9 @@
 'use client';
 import React from 'react';
 import { useRouter } from 'next/navigation';
+import { jwtDecode } from 'jwt-decode';
 import useBearStore from '@/app/store/useStore';
 import { login } from '@/app/services/authService';
-import { jwtDecode } from 'jwt-decode';
 
 export default function LoginForm() {
    const router = useRouter();
@@ -37,41 +37,27 @@ export default function LoginForm() {
       if (!validate()) return;
       setSubmitting(true);
       try {
-         const { token, user } = await login({ email, password, remember });
+         const response = await login({ email, password, remember });
+         const { token } = response;
+         // Check for user in response.user or response.data.user
+         const user = response.user || response.data?.user;
+
          localStorage.setItem('token', token);
-
-         let currentUser = user;
-
-         if (currentUser) {
-            localStorage.setItem('user', JSON.stringify(currentUser));
-         } else {
-            try {
-               const decoded = jwtDecode<{
-                  email?: string;
-                  role?: 'student' | 'instructor' | 'admin';
-                  id?: number;
-                  sub?: string;
-               }>(token);
-               currentUser = {
-                  email: decoded.email || email,
-                  role: decoded.role as 'student' | 'instructor' | 'admin',
-                  id: decoded.id || Number(decoded.sub) || 0,
-                  // Minimal user object to satisfy store/auth requirements
-               };
-               localStorage.setItem('user', JSON.stringify(currentUser));
-            } catch (error) {
-               console.error('Failed to decode token manually:', error);
-            }
+         if (user) {
+            localStorage.setItem('user', JSON.stringify(user));
          }
+         // Decode the token to get user information, including the role
+         const decodedToken: { role: string } = jwtDecode(token);
+         const userRole = decodedToken.role;
 
          // Initialize auth state in Zustand store before navigation
          initializeAuth();
 
-         if (currentUser?.role === 'student') {
-            router.push('/');
-         } else if (currentUser?.role === 'instructor') {
+         if (userRole === 'student') {
+            router.push('/student/courses');
+         } else if (userRole === 'instructor') {
             router.push('/dashboard/instructor');
-         } else if (currentUser?.role === 'admin') {
+         } else if (userRole === 'admin') {
             router.push('/dashboard/admin');
          }
       } catch (err: any) {

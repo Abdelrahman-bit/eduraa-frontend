@@ -15,6 +15,46 @@ import CourseListCard from '@/app/components/all-courses/ui/CourseListCard';
 import CourseCardSkeleton from '@/app/components/all-courses/ui/CourseCardSkeleton';
 import FilterSidebar from '@/app/components/all-courses/ui/FilterSidebar';
 import Link from 'next/link';
+import {
+   CATEGORIES,
+   TOOLS,
+   RATINGS,
+   LEVELS,
+} from '@/app/components/all-courses/data';
+
+// Helper to calculate counts
+const calculateCounts = (courses: any[]) => {
+   const counts = {
+      categories: {} as Record<string, number>,
+      subcategories: {} as Record<string, number>,
+      tools: {} as Record<string, number>,
+      levels: {} as Record<string, number>,
+      ratings: {} as Record<number, number>,
+   };
+
+   courses.forEach((course) => {
+      // Category & Subcategory
+      const cat = course.basicInfo.category;
+      const sub = course.basicInfo.subCategory;
+      if (cat) counts.categories[cat] = (counts.categories[cat] || 0) + 1;
+      if (sub) counts.subcategories[sub] = (counts.subcategories[sub] || 0) + 1;
+
+      // Tools (Tags)
+      if (course.tags && Array.isArray(course.tags)) {
+         course.tags.forEach((tag: string) => {
+            counts.tools[tag] = (counts.tools[tag] || 0) + 1;
+         });
+      }
+
+      // Levels
+      const lvl = course.basicInfo.level;
+      if (lvl) counts.levels[lvl] = (counts.levels[lvl] || 0) + 1;
+
+      // Ratings (Not available in API yet, skipping or implementing if field exists)
+   });
+
+   return counts;
+};
 
 const App = () => {
    const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
@@ -161,13 +201,57 @@ const App = () => {
       setCurrentPage(1);
    }, [selectedCategories, selectedLevels, selectedRatings, searchQuery]);
 
-   // Scroll to top on page change
    useEffect(() => {
       window.scrollTo({ top: 0, behavior: 'smooth' });
    }, [currentPage]);
 
+   // Calculate dynamic filter data
+   const counts = calculateCounts(allCourses);
+
+   // Map data with dynamic counts
+   const categoriesData = CATEGORIES.map((cat) => ({
+      ...cat,
+      // Sum subcategory counts for main category if desired, or use API count if available.
+      // For now, let's keep the main category structure but update subcategories.
+      subcategories: cat.subcategories?.map((sub) => ({
+         ...sub,
+         count: counts.subcategories[sub.name] || 0,
+         // Note: counts.categories[cat.name] could be used for the parent, but the UI might sum children.
+         // checking FilterSidebar implementation... it uses sub.count
+      })),
+   }));
+
+   const toolsData = TOOLS.map((tool) => ({
+      ...tool,
+      count: counts.tools[tool.name] || 0,
+   }));
+
+   const levelsData = LEVELS.map((lvl) => ({
+      ...lvl,
+      count: counts.levels[lvl.name] || 0,
+   }));
+
+   const ratingsData = RATINGS.map((rate) => ({
+      ...rate,
+      count: 0, // No rating data in API
+   }));
+
    return (
       <div className="min-h-screen bg-gray-50 font-sans text-slate-800">
+         {/* --- Breadcrumb --- */}
+         <div className="bg-white border-b border-gray-100">
+            <div className="max-w-[1600px] mx-auto px-4 md:px-6 py-3 flex items-center gap-2 text-sm text-gray-500">
+               <Link
+                  href="/"
+                  className="hover:text-orange-500 transition-colors"
+               >
+                  Home
+               </Link>
+               <ChevronRight className="w-4 h-4" />
+               <span className="text-orange-500 font-medium">Courses</span>
+            </div>
+         </div>
+
          {/* --- Top Navigation Bar --- */}
          <header className="bg-white border-b border-gray-200 sticky top-0 z-30">
             <div className="max-w-[1600px] mx-auto px-4 md:px-6 py-4">
@@ -366,6 +450,11 @@ const App = () => {
                setSelectedRatings={setSelectedRatings}
                selectedLevels={selectedLevels}
                setSelectedLevels={setSelectedLevels}
+               // Dynamic Data
+               categories={categoriesData}
+               tools={toolsData}
+               ratings={ratingsData}
+               levels={levelsData}
             />
 
             {/* Course Grid Area */}
@@ -500,13 +589,7 @@ const App = () => {
                   <>
                      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                         {paginatedCourses.map((course) => (
-                           <Link
-                              key={course._id}
-                              href={`/all-courses/${course._id}`}
-                              className="block h-full hover:opacity-95 transition-opacity"
-                           >
-                              <CourseListCard course={course} />
-                           </Link>
+                           <CourseListCard key={course._id} course={course} />
                         ))}
                      </div>
                      {courses.length === 0 && (

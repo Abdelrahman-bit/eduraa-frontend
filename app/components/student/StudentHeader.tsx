@@ -1,7 +1,8 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import Image from 'next/image';
+import useBearStore from '@/app/store/useStore';
+import { useEffect, useState } from 'react';
 
 export default function StudentHeader() {
    const pathname = usePathname();
@@ -12,9 +13,35 @@ export default function StudentHeader() {
       { name: 'Teachers', href: '/student/teachers' },
       { name: 'Messages', href: '/student/studentMsgs' },
       { name: 'Wishlist', href: '/student/wishlist' },
-      { name: 'Shopping Cart', href: '/student/shoppingCart' },
       { name: 'Settings', href: '/student/settings' },
    ];
+
+   const { user } = useBearStore();
+   const [userData, setUserData] = useState<any>(null);
+
+   useEffect(() => {
+      const fetchUserData = async () => {
+         // Optionally use store user first
+         if (user) {
+            setUserData(user);
+         }
+
+         // Fetch fresh full profile to ensure we have firstname/lastname/avatar
+         try {
+            const { getUserProfile } = await import(
+               '@/app/services/userService'
+            );
+            const profile = await getUserProfile();
+            setUserData(profile);
+         } catch (error) {
+            console.error('Failed to fetch header user data', error);
+         }
+      };
+
+      fetchUserData();
+   }, [user]);
+
+   if (!user) return null;
 
    return (
       <div className="w-full bg-[#FFEEE8] py-12 pb-0">
@@ -22,20 +49,27 @@ export default function StudentHeader() {
             <div className="bg-white shadow-sm px-8 pt-8 ">
                <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4">
                   <div className="flex items-center gap-5">
-                     <div className="relative w-16 h-16 rounded-full overflow-hidden">
-                        {/* use student name frist chars instead of img */}
+                     <div className="relative w-16 h-16 rounded-full overflow-hidden border-2 border-white shadow-sm">
                         <img
-                           src="https://ui-avatars.com/api/?name=Kevin+Gilbert&background=1D2026&color=fff"
-                           alt="Kevin Gilbert"
+                           src={
+                              userData?.avatar ||
+                              `https://ui-avatars.com/api/?name=${userData?.firstname}+${userData?.lastname}&background=1D2026&color=fff`
+                           }
+                           alt={
+                              `${userData?.firstname} ${userData?.lastname}` ||
+                              'Student'
+                           }
                            className="w-full h-full object-cover"
                         />
                      </div>
                      <div>
                         <h1 className="text-2xl font-bold text-[#1D2026]">
-                           Kevin Gilbert
+                           {userData
+                              ? `${userData.firstname} ${userData.lastname}`
+                              : 'Student'}
                         </h1>
-                        <p className="text-[#4E5566] text-sm">
-                           Web Designer & Best-Selling Instructor
+                        <p className="text-[#4E5566] text-sm capitalize">
+                           {userData?.title || userData?.role || 'Student'}
                         </p>
                      </div>
                   </div>

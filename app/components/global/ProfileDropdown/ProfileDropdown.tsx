@@ -4,13 +4,45 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import useBearStore from '@/app/store/useStore';
-import { User, BookOpen, LayoutDashboard, LogOut } from 'lucide-react';
+import {
+   User,
+   BookOpen,
+   LayoutDashboard,
+   LogOut,
+   LucideIcon,
+   Settings,
+   GraduationCap,
+   Heart,
+} from 'lucide-react';
+import { getUserProfile } from '@/app/services/userService';
+
+interface MenuItem {
+   href: string;
+   icon: LucideIcon;
+   label: string;
+}
 
 export default function ProfileDropdown() {
    const [isOpen, setIsOpen] = useState(false);
+   const [userData, setUserData] = useState<any>(null);
+   const [isLoadingData, setIsLoadingData] = useState(true);
    const dropdownRef = useRef<HTMLDivElement>(null);
    const { user, logout } = useBearStore();
    const router = useRouter();
+
+   useEffect(() => {
+      fetchProfile();
+   }, []);
+   const fetchProfile = async () => {
+      try {
+         const user = await getUserProfile();
+         setUserData(user);
+      } catch (error) {
+         console.error('Failed to fetch profile:', error);
+      } finally {
+         setIsLoadingData(false);
+      }
+   };
 
    useEffect(() => {
       const handleClickOutside = (event: MouseEvent) => {
@@ -33,7 +65,46 @@ export default function ProfileDropdown() {
       router.push('/');
    };
 
+   const getMenuItems = (): MenuItem[] => {
+      if (!user) return [];
+
+      const isPrivileged = user.role === 'instructor' || user.role === 'admin';
+      const basePath =
+         user.role === 'admin' ? '/dashboard/admin' : '/dashboard/instructor';
+
+      if (isPrivileged) {
+         return [
+            { href: `${basePath}/settings`, icon: User, label: 'Settings' },
+            {
+               href: `${basePath}/courses`,
+               icon: BookOpen,
+               label: 'My Courses',
+            },
+            { href: basePath, icon: LayoutDashboard, label: 'Dashboard' },
+         ];
+      }
+
+      // Student menu items
+      return [
+         {
+            href: '/student/dashboard',
+            icon: LayoutDashboard,
+            label: 'Dashboard',
+         },
+         { href: '/student/courses', icon: BookOpen, label: 'My Courses' },
+         {
+            href: '/student/teachers',
+            icon: GraduationCap,
+            label: 'My Teachers',
+         },
+         { href: '/student/wishlist', icon: Heart, label: 'Wishlist' },
+         { href: '/student/settings', icon: Settings, label: 'Settings' },
+      ];
+   };
+
    if (!user) return null;
+
+   const menuItems = getMenuItems();
 
    return (
       <div className="relative" ref={dropdownRef}>
@@ -43,11 +114,11 @@ export default function ProfileDropdown() {
          >
             <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-gray-300 hover:border-orange-500 transition-colors">
                <Image
-                  src={user.avatar || '/avatar.png'}
-                  alt={`${user.name || 'User'} profile picture`}
+                  src={userData?.avatar || '/avatar.png'}
+                  alt={`${userData?.name} profile picture`}
                   width={40}
                   height={40}
-                  className="object-cover"
+                  className="object-cover w-full h-full"
                />
             </div>
          </button>
@@ -57,7 +128,10 @@ export default function ProfileDropdown() {
                <div className="px-4 py-3 border-b border-gray-200">
                   <p className="text-sm font-semibold text-gray-900">
                      {user.name ||
-                        `${(user as any).firstName || ''} ${(user as any).lastName || ''}`.trim() ||
+                        (userData &&
+                           `${userData.firstname || ''} ${userData.lastname || ''}`.trim()) ||
+                        ((user as any).firstname &&
+                           `${(user as any).firstname} ${(user as any).lastname}`) ||
                         'User'}
                   </p>
                   <p className="text-xs text-gray-500">{user.email}</p>
@@ -67,38 +141,17 @@ export default function ProfileDropdown() {
                </div>
 
                <div className="py-1">
-                  <Link
-                     href="/profile"
-                     className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                     onClick={() => setIsOpen(false)}
-                  >
-                     <User size={16} />
-                     Profile
-                  </Link>
-
-                  <Link
-                     href="/my-courses"
-                     className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-                     onClick={() => setIsOpen(false)}
-                  >
-                     <BookOpen size={16} />
-                     My Courses
-                  </Link>
-
-                  {(user.role === 'instructor' || user.role === 'admin') && (
+                  {menuItems.map((item) => (
                      <Link
-                        href={
-                           user.role === 'admin'
-                              ? '/dashboard/admin'
-                              : '/dashboard/instructor'
-                        }
+                        key={item.href}
+                        href={item.href}
                         className="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
                         onClick={() => setIsOpen(false)}
                      >
-                        <LayoutDashboard size={16} />
-                        Dashboard
+                        <item.icon size={16} />
+                        {item.label}
                      </Link>
-                  )}
+                  ))}
                </div>
 
                <div className="border-t border-gray-200 py-1">

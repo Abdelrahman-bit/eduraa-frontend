@@ -27,6 +27,16 @@ apiClient.interceptors.response.use(
          error.message ||
          'Something went wrong, please try again';
 
+      // Log the full error in development for debugging
+      if (process.env.NODE_ENV === 'development') {
+         console.error('API Error:', {
+            message,
+            status: error.response?.status,
+            data: error.response?.data,
+            fullError: error,
+         });
+      }
+
       return Promise.reject(new Error(message));
    }
 );

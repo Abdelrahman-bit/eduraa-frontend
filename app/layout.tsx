@@ -4,6 +4,7 @@ import { Toaster } from 'react-hot-toast';
 
 import './globals.css';
 import { QueryProvider } from './providers/QueryProvider';
+import ChatBot from '@/app/components/ai/ChatBot';
 
 const inter = Inter({
    subsets: ['latin'],
@@ -27,6 +28,7 @@ export default function RootLayout({
             <QueryProvider>
                <Toaster />
                <main className="grow">{children}</main>
+               <ChatBot />
             </QueryProvider>
          </body>
       </html>

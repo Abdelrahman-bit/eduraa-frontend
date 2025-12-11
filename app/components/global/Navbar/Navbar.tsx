@@ -9,10 +9,15 @@ import Button from '../Button/Button';
 import ProfileDropdown from '../ProfileDropdown/ProfileDropdown';
 import useBearStore from '@/app/store/useStore';
 
+import { IoMdHeartEmpty } from 'react-icons/io';
+
 export default function Navbar() {
    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
    const [isHydrated, setIsHydrated] = useState(false);
-   const { user, isAuthenticated, loading, initializeAuth } = useBearStore();
+   const { user, isAuthenticated, loading, initializeAuth, wishlist } =
+      useBearStore();
+
+   // console.log('Navbar State:', { isAuthenticated, loading, user: !!user, isHydrated });
 
    // Handle hydration mismatch
    useEffect(() => {
@@ -56,7 +61,7 @@ export default function Navbar() {
          </nav>
 
          {/* Main NavBar  */}
-         <nav className="flex justify-between items-center px-4 md:px-8 py-4 border-b-2 border-gray-scale-100">
+         <nav className="relative z-[100] flex justify-between items-center px-4 md:px-8 py-4 border-b-2 border-gray-scale-100">
             {/* Left Section */}
             <div className="flex gap-3 md:gap-6 items-center flex-1">
                <Link href="/">
@@ -98,6 +103,19 @@ export default function Navbar() {
                   <button>
                      <IoMdNotificationsOutline size={24} />
                   </button>
+                  {isAuthenticated && (
+                     <Link
+                        href="/student/wishlist"
+                        className="relative hover:text-orange-500 transition-colors"
+                     >
+                        <IoMdHeartEmpty size={24} />
+                        {wishlist.length > 0 && (
+                           <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-orange-500 text-[10px] text-white">
+                              {wishlist.length}
+                           </span>
+                        )}
+                     </Link>
+                  )}
                </div>
 
                {/* Auth Section */}
