@@ -33,9 +33,11 @@ const CourseListCard = ({ course }: { course: Course }) => {
       isCourseInWishlist,
       isCourseEnrolled,
       isAuthenticated,
+      user,
    } = useBearStore();
    const isWishlisted = isCourseInWishlist(course._id);
    const isEnrolled = isCourseEnrolled(course._id);
+   const isStudent = user?.role === 'student';
 
    const handleWishlistClick = (e: React.MouseEvent) => {
       e.preventDefault();
@@ -63,7 +65,7 @@ const CourseListCard = ({ course }: { course: Course }) => {
                alt={course.basicInfo.title}
                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
             />
-            {!isEnrolled && (
+            {isStudent && !isEnrolled && (
                <button
                   onClick={handleWishlistClick}
                   className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-sm rounded-full transition-opacity hover:text-red-500 text-gray-400 z-10"

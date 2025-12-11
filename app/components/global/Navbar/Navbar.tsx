@@ -103,7 +103,7 @@ export default function Navbar() {
                   <button>
                      <IoMdNotificationsOutline size={24} />
                   </button>
-                  {isAuthenticated && (
+                  {isAuthenticated && user?.role === 'student' && (
                      <Link
                         href="/student/wishlist"
                         className="relative hover:text-orange-500 transition-colors"

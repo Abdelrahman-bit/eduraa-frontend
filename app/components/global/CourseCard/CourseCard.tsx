@@ -27,12 +27,14 @@ export const CourseCard: React.FC<CourseCardProps> = ({
       isCourseInWishlist,
       isCourseEnrolled,
       isAuthenticated,
+      user,
    } = useBearStore();
    const isWishlisted = isCourseInWishlist(course.id);
    const isEnrolled = isCourseEnrolled(course.id);
+   const isStudent = user?.role === 'student';
 
-   // Effectively hide wishlist if explicitly asked OR if user is enrolled
-   const shouldHideWishlist = hideWishlist || isEnrolled;
+   // Effectively hide wishlist if explicitly asked OR if user is enrolled OR if not a student
+   const shouldHideWishlist = hideWishlist || isEnrolled || !isStudent;
 
    const handleWishlistToggle = (e: MouseEvent) => {
       e.preventDefault(); // Prevent link navigation
