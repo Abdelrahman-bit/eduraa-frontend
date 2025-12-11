@@ -2,21 +2,41 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useChat } from '@ai-sdk/react';
+import { DefaultChatTransport } from 'ai';
 import { motion, AnimatePresence } from 'framer-motion';
-import { MessageCircle, X, Send, Bot, User, Loader2 } from 'lucide-react';
+import { MessageCircle, X, Send, Bot, Loader2, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import ReactMarkdown from 'react-markdown';
+import Image from 'next/image';
+import useBearStore from '@/app/store/useStore';
 
 export default function ChatBot() {
    const [isOpen, setIsOpen] = useState(false);
    const [token, setToken] = useState<string | null>(null);
    const messagesEndRef = useRef<HTMLDivElement>(null);
 
+   // Get user from store for profile image
+   const { user, isAuthenticated } = useBearStore();
+   const [userAvatar, setUserAvatar] = useState<string>('/avatar.png');
+
    // Get token on mount AND when chat opens (in case user logged in while app was open)
    useEffect(() => {
       const storedToken = localStorage.getItem('token');
       console.log('[ChatBot] Token loaded:', storedToken ? 'YES' : 'NO');
       setToken(storedToken);
+
+      // Try to get user avatar from localStorage
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+         try {
+            const userData = JSON.parse(userStr);
+            if (userData?.avatar) {
+               setUserAvatar(userData.avatar);
+            }
+         } catch (e) {
+            console.error('[ChatBot] Error parsing user data:', e);
+         }
+      }
    }, []); // Load on mount
 
    useEffect(() => {
@@ -27,36 +47,46 @@ export default function ChatBot() {
             console.log('[ChatBot] Token updated on open');
             setToken(storedToken);
          }
-      }
-   }, [isOpen]);
 
-   // Use apiClient base URL to construct the endpoint
-   // Use Next.js rewrite to proxy /api/chat to backend
-   // See next.config.ts for rewrite configuration
+         // Update avatar if user data changed
+         const userStr = localStorage.getItem('user');
+         if (userStr) {
+            try {
+               const userData = JSON.parse(userStr);
+               if (userData?.avatar) {
+                  setUserAvatar(userData.avatar);
+               }
+            } catch (e) {
+               console.error('[ChatBot] Error parsing user data:', e);
+            }
+         }
+      }
+   }, [isOpen, token]);
 
    // Manually manage input state since useChat's handleInputChange was unreliable here
    const [localInput, setLocalInput] = useState('');
 
-   // Explicitly defining the options type as any to bypass the potential lint error about 'api'
-   // while still providing it, in case the SDK header/check fails without it.
-   // Generate a unique chat ID on mount to ensure fresh session (prevents stale message history issues)
+   // Generate a unique chat ID on mount to ensure fresh session
    const [chatId] = useState(() => `chat-${Date.now()}`);
 
+   // Use DefaultChatTransport for proper SDK v5 configuration
    const chatHook = useChat({
-      id: chatId, // Unique ID per session to avoid message persistence issues
-      initialMessages: [], // Force clean state on each page load
-      maxSteps: 3, // CRITICAL: Must match server's maxSteps to prevent tool execution failures
-      api: '/api/chat', // Uses Next.js rewrite to proxy to backend
-      // Use a function for headers to always get the latest token from localStorage
-      headers: () => {
-         const currentToken = localStorage.getItem('token');
-         console.log(
-            '[ChatBot] Sending request with token:',
-            currentToken ? 'YES' : 'NO'
-         );
-         return currentToken ? { Authorization: `Bearer ${currentToken}` } : {};
-      },
-      // Using default UI Message stream protocol per official docs
+      id: chatId,
+      initialMessages: [],
+      maxSteps: 3, // Match server's stopWhen: stepCountIs(3) for multi-step tool calls
+      transport: new DefaultChatTransport({
+         api: '/api/chat',
+         headers: () => {
+            const currentToken = localStorage.getItem('token');
+            console.log(
+               '[ChatBot] Sending request with token:',
+               currentToken ? 'YES' : 'NO'
+            );
+            return currentToken
+               ? { Authorization: `Bearer ${currentToken}` }
+               : {};
+         },
+      }),
       onResponse: (response) => {
          console.log(
             'ChatBot: Received response',
@@ -70,10 +100,9 @@ export default function ChatBot() {
       onError: (err) => {
          console.error('ChatBot: Chat error:', err);
       },
-   } as any);
+   });
 
-   const { messages, sendMessage, stop, isLoading, error, status } =
-      chatHook as any;
+   const { messages, sendMessage, stop, isLoading, error, status } = chatHook;
 
    // Debug: Log status changes to understand streaming behavior
    useEffect(() => {
@@ -106,37 +135,21 @@ export default function ChatBot() {
       const userMessage = localInput.trim();
       setLocalInput(''); // Clear input immediately
 
-      // Get current token for authorization
-      const currentToken = localStorage.getItem('token');
-      const headers = currentToken
-         ? { Authorization: `Bearer ${currentToken}` }
-         : {};
-      console.log(
-         '[ChatBot] Sending message with token:',
-         currentToken ? 'YES' : 'NO'
-      );
+      console.log('[ChatBot] Sending message:', userMessage.substring(0, 50));
 
-      // Use sendMessage with headers option for auth
-      if (sendMessage) {
+      // sendMessage is the preferred method in SDK v5
+      // Headers are automatically handled by DefaultChatTransport
+      try {
+         await sendMessage({ text: userMessage });
+      } catch (sendError) {
+         console.error('[ChatBot] Send failed:', sendError);
+         // Retry once on failure
+         await new Promise((resolve) => setTimeout(resolve, 500));
          try {
-            // Pass headers in the options object for SDK v5+
-            await sendMessage({ text: userMessage }, { headers });
-         } catch (sendError) {
-            console.warn(
-               '[ChatBot] First attempt failed, retrying...',
-               sendError
-            );
-            // Automatic retry on first failure
-            await new Promise((resolve) => setTimeout(resolve, 500));
-            await sendMessage({ text: userMessage }, { headers });
+            await sendMessage({ text: userMessage });
+         } catch (retryError) {
+            console.error('[ChatBot] Retry also failed:', retryError);
          }
-      } else if ((chatHook as any).append) {
-         await (chatHook as any).append({
-            role: 'user',
-            content: userMessage,
-         });
-      } else {
-         console.error("ChatBot: Both 'sendMessage' and 'append' are missing!");
       }
    };
 
@@ -157,14 +170,29 @@ export default function ChatBot() {
       }
    }, [isOpen]);
 
+   // Get user display name
+   const getUserName = () => {
+      if (user?.name) return user.name;
+      const userStr = localStorage.getItem('user');
+      if (userStr) {
+         try {
+            const userData = JSON.parse(userStr);
+            if (userData?.firstname) {
+               return `${userData.firstname} ${userData.lastname || ''}`.trim();
+            }
+         } catch (e) {}
+      }
+      return 'You';
+   };
+
    return (
       <>
-         {/* Toggle Button */}
+         {/* Toggle Button - Using platform primary color (orange) */}
          <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => setIsOpen(!isOpen)}
-            className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-indigo-600 text-white shadow-lg transition-colors hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+            className="fixed bottom-6 right-6 z-[999] flex h-14 w-14 items-center justify-center rounded-full bg-primary-500 text-white shadow-lg shadow-primary-500/30 transition-all hover:bg-primary-600 hover:shadow-primary-500/40 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
          >
             {isOpen ? <X size={24} /> : <MessageCircle size={24} />}
          </motion.button>
@@ -177,36 +205,85 @@ export default function ChatBot() {
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 20, scale: 0.95 }}
                   transition={{ duration: 0.2 }}
-                  className="fixed bottom-24 right-6 z-50 flex h-[600px] w-[400px] flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white/95 shadow-2xl backdrop-blur-md dark:border-gray-800 dark:bg-gray-950/95"
+                  className="fixed bottom-24 right-6 z-[999] flex h-[600px] w-[400px] flex-col overflow-hidden rounded-2xl border border-gray-scale-200 bg-white shadow-2xl dark:border-gray-scale-700 dark:bg-gray-scale-900"
                >
-                  {/* Header */}
-                  <div className="flex items-center justify-between bg-linear-to-r from-indigo-600 to-violet-600 px-4 py-4 text-white">
-                     <div className="flex items-center gap-2">
-                        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-white/20">
-                           <Bot size={18} />
+                  {/* Header - Gradient using platform colors */}
+                  <div className="flex items-center justify-between bg-gradient-to-r from-primary-500 via-primary-600 to-secondary-500 px-4 py-4 text-white">
+                     <div className="flex items-center gap-3">
+                        <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm">
+                           <Sparkles size={20} className="text-white" />
                         </div>
                         <div>
-                           <h3 className="font-semibold text-sm">
-                              AI Assistant
+                           <h3 className="font-semibold text-base">
+                              AI Learning Assistant
                            </h3>
-                           <p className="text-[10px] text-indigo-100 opacity-90">
-                              Always here to help
+                           <p className="text-xs text-white/80">
+                              {isAuthenticated
+                                 ? `Hi, ${getUserName().split(' ')[0]}! 👋`
+                                 : 'Always here to help'}
                            </p>
                         </div>
                      </div>
+                     <button
+                        onClick={() => setIsOpen(false)}
+                        className="rounded-full p-1.5 hover:bg-white/20 transition-colors"
+                     >
+                        <X size={18} />
+                     </button>
                   </div>
 
                   {/* Messages */}
-                  <div className="flex-1 overflow-y-auto p-4 space-y-4">
+                  <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-scale-50 dark:bg-gray-scale-800">
                      {messages.length === 0 && (
-                        <div className="flex h-full flex-col items-center justify-center text-center text-gray-500">
-                           <Bot size={48} className="mb-4 text-indigo-200" />
-                           <p className="text-sm">
+                        <div className="flex h-full flex-col items-center justify-center text-center text-gray-scale-500">
+                           <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary-100 to-secondary-100 flex items-center justify-center mb-4">
+                              <Bot size={32} className="text-primary-500" />
+                           </div>
+                           <p className="text-sm font-medium text-gray-scale-700 dark:text-gray-scale-200">
                               Hi! How can I help you today?
                            </p>
-                           <p className="text-xs text-gray-400 mt-2">
-                              Ask about courses, your stats, or the platform.
+                           <p className="text-xs text-gray-scale-500 mt-2 max-w-[250px]">
+                              Ask about courses, your learning progress, or
+                              anything about the platform.
                            </p>
+
+                           {/* Quick action suggestions */}
+                           <div className="flex flex-wrap gap-2 mt-6 justify-center">
+                              {isAuthenticated && (
+                                 <>
+                                    <button
+                                       onClick={() =>
+                                          setLocalInput(
+                                             'How many courses am I enrolled in?'
+                                          )
+                                       }
+                                       className="text-xs px-3 py-1.5 rounded-full bg-white border border-gray-scale-200 text-gray-scale-600 hover:border-primary-300 hover:text-primary-600 transition-colors"
+                                    >
+                                       📚 My Courses
+                                    </button>
+                                    <button
+                                       onClick={() =>
+                                          setLocalInput(
+                                             'What courses are available?'
+                                          )
+                                       }
+                                       className="text-xs px-3 py-1.5 rounded-full bg-white border border-gray-scale-200 text-gray-scale-600 hover:border-primary-300 hover:text-primary-600 transition-colors"
+                                    >
+                                       🔍 Browse
+                                    </button>
+                                 </>
+                              )}
+                              <button
+                                 onClick={() =>
+                                    setLocalInput(
+                                       'How do I become an instructor?'
+                                    )
+                                 }
+                                 className="text-xs px-3 py-1.5 rounded-full bg-white border border-gray-scale-200 text-gray-scale-600 hover:border-primary-300 hover:text-primary-600 transition-colors"
+                              >
+                                 🎓 Teach
+                              </button>
+                           </div>
                         </div>
                      )}
 
@@ -214,24 +291,26 @@ export default function ChatBot() {
                         <div
                            key={m.id}
                            className={cn(
-                              'flex w-full gap-2',
+                              'flex w-full gap-3',
                               m.role === 'user'
                                  ? 'justify-end'
                                  : 'justify-start'
                            )}
                         >
+                           {/* Bot Avatar */}
                            {m.role !== 'user' && (
-                              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-indigo-600 border border-indigo-200">
+                              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary-500 to-secondary-500 text-white shadow-sm">
                                  <Bot size={14} />
                               </div>
                            )}
 
+                           {/* Message Bubble */}
                            <div
                               className={cn(
                                  'max-w-[80%] px-4 py-2.5 text-sm shadow-sm',
                                  m.role === 'user'
-                                    ? 'rounded-2xl rounded-tr-sm bg-indigo-600 text-white'
-                                    : 'rounded-2xl rounded-tl-sm bg-gray-100 text-gray-800 dark:bg-gray-800 dark:text-gray-100'
+                                    ? 'rounded-2xl rounded-tr-md bg-primary-500 text-white'
+                                    : 'rounded-2xl rounded-tl-md bg-white text-gray-scale-800 border border-gray-scale-100 dark:bg-gray-scale-700 dark:text-gray-scale-100 dark:border-gray-scale-600'
                               )}
                            >
                               {m.role === 'user' ? (
@@ -247,7 +326,7 @@ export default function ChatBot() {
                                        : m.content}
                                  </p>
                               ) : (
-                                 <div className="prose prose-sm dark:prose-invert max-w-none prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 prose-headings:my-2 prose-strong:text-inherit">
+                                 <div className="prose prose-sm dark:prose-invert max-w-none prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0.5 prose-headings:my-2 prose-strong:text-inherit prose-a:text-primary-500">
                                     <ReactMarkdown>
                                        {m.parts
                                           ? m.parts
@@ -263,9 +342,16 @@ export default function ChatBot() {
                               )}
                            </div>
 
+                           {/* User Avatar - Using actual profile picture */}
                            {m.role === 'user' && (
-                              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gray-200 text-gray-600 border border-gray-300 dark:bg-gray-700 dark:text-gray-300">
-                                 <User size={14} />
+                              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full overflow-hidden border-2 border-primary-200 bg-gray-scale-100">
+                                 <Image
+                                    src={userAvatar}
+                                    alt="Your avatar"
+                                    width={32}
+                                    height={32}
+                                    className="object-cover w-full h-full"
+                                 />
                               </div>
                            )}
                         </div>
@@ -288,12 +374,12 @@ export default function ChatBot() {
                            <motion.div
                               initial={{ opacity: 0, y: 10 }}
                               animate={{ opacity: 1, y: 0 }}
-                              className="flex justify-start gap-2"
+                              className="flex justify-start gap-3"
                            >
-                              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-indigo-100 text-indigo-600 border border-indigo-200">
+                              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-primary-500 to-secondary-500 text-white">
                                  <Bot size={14} />
                               </div>
-                              <div className="flex items-center gap-2 rounded-2xl rounded-tl-sm bg-gray-100 px-4 py-3 dark:bg-gray-800">
+                              <div className="flex items-center gap-2 rounded-2xl rounded-tl-md bg-white px-4 py-3 border border-gray-scale-100 dark:bg-gray-scale-700 dark:border-gray-scale-600">
                                  <div className="flex gap-1">
                                     <motion.span
                                        animate={{ scale: [1, 1.2, 1] }}
@@ -302,7 +388,7 @@ export default function ChatBot() {
                                           duration: 0.6,
                                           delay: 0,
                                        }}
-                                       className="h-2 w-2 rounded-full bg-indigo-400"
+                                       className="h-2 w-2 rounded-full bg-primary-400"
                                     />
                                     <motion.span
                                        animate={{ scale: [1, 1.2, 1] }}
@@ -311,7 +397,7 @@ export default function ChatBot() {
                                           duration: 0.6,
                                           delay: 0.2,
                                        }}
-                                       className="h-2 w-2 rounded-full bg-indigo-400"
+                                       className="h-2 w-2 rounded-full bg-primary-400"
                                     />
                                     <motion.span
                                        animate={{ scale: [1, 1.2, 1] }}
@@ -320,18 +406,18 @@ export default function ChatBot() {
                                           duration: 0.6,
                                           delay: 0.4,
                                        }}
-                                       className="h-2 w-2 rounded-full bg-indigo-400"
+                                       className="h-2 w-2 rounded-full bg-secondary-400"
                                     />
                                  </div>
-                                 <span className="text-xs text-gray-500 ml-1">
-                                    AI is typing...
+                                 <span className="text-xs text-gray-scale-500 ml-1">
+                                    Thinking...
                                  </span>
                               </div>
                            </motion.div>
                         )}
 
                      {error && (
-                        <div className="mx-auto rounded-md bg-red-50 p-3 text-center text-xs text-red-500">
+                        <div className="mx-auto rounded-lg bg-danger-50 p-3 text-center text-xs text-danger-500 border border-danger-100">
                            Something went wrong. Please try again.
                         </div>
                      )}
@@ -342,19 +428,19 @@ export default function ChatBot() {
                   {/* Input Form */}
                   <form
                      onSubmit={handleLocalSubmit}
-                     className="border-t border-gray-100 bg-gray-50 p-4 dark:border-gray-800 dark:bg-gray-900/50"
+                     className="border-t border-gray-scale-100 bg-white p-4 dark:border-gray-scale-700 dark:bg-gray-scale-900"
                   >
                      <div className="relative flex items-center gap-2">
                         <input
                            value={localInput}
                            onChange={(e) => setLocalInput(e.target.value)}
-                           placeholder="Type your message..."
-                           className="flex-1 rounded-full border border-gray-200 bg-white px-4 py-2.5 text-sm focus:border-indigo-500 focus:outline-none focus:ring-1 focus:ring-indigo-500 dark:border-gray-700 dark:bg-gray-800 dark:text-gray-100"
+                           placeholder="Ask me anything..."
+                           className="flex-1 rounded-full border border-gray-scale-200 bg-gray-scale-50 px-4 py-2.5 text-sm focus:border-primary-400 focus:outline-none focus:ring-2 focus:ring-primary-100 dark:border-gray-scale-600 dark:bg-gray-scale-800 dark:text-gray-scale-100 dark:focus:ring-primary-900"
                         />
                         <button
                            type="submit"
                            disabled={isLoading || !localInput.trim()}
-                           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-indigo-600 text-white transition-colors hover:bg-indigo-700 disabled:bg-indigo-400 disabled:cursor-not-allowed"
+                           className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary-500 text-white transition-all hover:bg-primary-600 hover:shadow-md disabled:bg-gray-scale-300 disabled:cursor-not-allowed disabled:shadow-none"
                         >
                            {isLoading ? (
                               <Loader2 size={18} className="animate-spin" />

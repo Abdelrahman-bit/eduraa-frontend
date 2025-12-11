@@ -115,7 +115,9 @@ export default function CourseDetailsPage({
          refetchEnrollment();
       } catch (error: any) {
          console.error('Enrollment error:', error);
-         alert(error?.response?.data?.message || 'Failed to enroll in course');
+         toast.error(
+            error?.response?.data?.message || 'Failed to enroll in course'
+         );
       } finally {
          setEnrolling(false);
       }
