@@ -1,5 +1,8 @@
 import type { NextConfig } from 'next';
 
+// Use environment variable for API URL, with localhost as default for development
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+
 const nextConfig: NextConfig = {
    images: {
       remotePatterns: [
@@ -37,7 +40,7 @@ const nextConfig: NextConfig = {
       return [
          {
             source: '/api/chat',
-            destination: 'http://localhost:5000/api/chat',
+            destination: `${API_URL}/chat`,
          },
       ];
    },
