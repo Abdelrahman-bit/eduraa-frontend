@@ -42,7 +42,7 @@ export default function Sidebar({ role, onLinkClick }: SidebarProps) {
                   <span className="text-orange-500 text-2xl">
                      <GraduationCap />
                   </span>{' '}
-                  E-tutor
+                  Eduraa
                </div>
             </div>
          </Link>

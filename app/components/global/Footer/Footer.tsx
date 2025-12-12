@@ -19,7 +19,7 @@ export default function Footer() {
                <div className="lg:col-span-1 space-y-6">
                   <div className="flex items-center gap-2 text-white font-bold text-2xl">
                      <Layers className="text-orange-500 w-8 h-8" />
-                     E-tutor
+                     Eduraa
                   </div>
                   <p className="text-sm text-gray-400 leading-relaxed">
                      Aliquam rhoncus ligula est, non pulvinar elit convallis

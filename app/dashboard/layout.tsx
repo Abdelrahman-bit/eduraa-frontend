@@ -74,7 +74,7 @@ export default function DashboardLayout({
                         <span className="text-orange-500 text-2xl">
                            <GraduationCap />
                         </span>{' '}
-                        E-tutor
+                        Eduraa
                      </div>
                   </div>
                </div>
