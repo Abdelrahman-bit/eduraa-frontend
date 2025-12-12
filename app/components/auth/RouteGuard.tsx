@@ -12,7 +12,12 @@ interface RouteGuardProps {
 export default function RouteGuard({ type, role }: RouteGuardProps) {
    const router = useRouter();
    const pathname = usePathname();
-   const { user, isAuthenticated, loading } = useBearStore();
+   const { user, isAuthenticated, loading, initializeAuth } = useBearStore();
+
+   // Initialize auth on mount to ensure loading state is properly set
+   useEffect(() => {
+      initializeAuth();
+   }, [initializeAuth]);
 
    useEffect(() => {
       // If authentication status is still loading, do nothing yet.
