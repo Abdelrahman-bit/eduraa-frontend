@@ -8,7 +8,6 @@ const SignupForm = () => {
    const router = useRouter();
    const [firstName, setFirstName] = React.useState('');
    const [lastName, setLastName] = React.useState('');
-   const [username, setUsername] = React.useState('');
    const [email, setEmail] = React.useState('');
    const [password, setPassword] = React.useState('');
    const [confirmPassword, setConfirmPassword] = React.useState('');
@@ -20,7 +19,6 @@ const SignupForm = () => {
    const [errors, setErrors] = React.useState<{
       firstName?: string;
       lastName?: string;
-      username?: string;
       email?: string;
       password?: string;
       confirmPassword?: string;
@@ -40,9 +38,6 @@ const SignupForm = () => {
       const e: any = {};
       if (!firstName.trim()) e.firstName = 'First name is required.';
       if (!lastName.trim()) e.lastName = 'Last name is required.';
-      if (!username.trim()) e.username = 'Username is required.';
-      else if (username.length < 3)
-         e.username = 'Username must be at least 3 characters.';
       if (!email.trim()) e.email = 'Email is required.';
       else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
          e.email = 'Enter a valid email.';
@@ -65,14 +60,13 @@ const SignupForm = () => {
       setSubmitting(true);
       try {
          await signUp({
-            firstName,
-            lastName,
-            username,
+            firstname: firstName,
+            lastname: lastName,
             email,
             password,
             confirmPassword,
          });
-         router.push('/courses');
+         router.push('/student/courses');
       } catch (error: any) {
          setErrors({ submit: error.message });
       } finally {
@@ -113,23 +107,6 @@ const SignupForm = () => {
                )}
                {errors.lastName && (
                   <p className="text-xs text-red-500 mt-1">{errors.lastName}</p>
-               )}
-            </div>
-
-            {/* Username */}
-            <div>
-               <label className="block text-xs font-medium text-gray-700 mb-1">
-                  Username
-               </label>
-               <input
-                  type="text"
-                  placeholder="Username..."
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
-                  className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
-               />
-               {errors.username && (
-                  <p className="text-xs text-red-500 mt-1">{errors.username}</p>
                )}
             </div>
 
