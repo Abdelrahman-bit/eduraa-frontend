@@ -8,16 +8,31 @@ import { Menu, X } from 'lucide-react';
 import Button from '../Button/Button';
 import ProfileDropdown from '../ProfileDropdown/ProfileDropdown';
 import useBearStore from '@/app/store/useStore';
+import { NotificationDropdown } from '@/app/components/notifications/NotificationDropdown';
+import { useNotifications } from '@/app/hooks/useNotifications';
+import { AblyProvider, useAblyContext } from '@/app/providers/AblyProvider';
+import { useRouter } from 'next/navigation';
 
 import { IoMdHeartEmpty } from 'react-icons/io';
 
-export default function Navbar() {
+/**
+ * Inner Navbar component with notification integration
+ */
+function NavbarInner() {
    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
    const [isHydrated, setIsHydrated] = useState(false);
+   const router = useRouter();
    const { user, isAuthenticated, loading, initializeAuth, wishlist } =
       useBearStore();
 
-   // console.log('Navbar State:', { isAuthenticated, loading, user: !!user, isHydrated });
+   // Use notifications hook for authenticated users
+   const {
+      notifications,
+      unreadCount,
+      isLoading: notificationsLoading,
+      markAsRead,
+      markAllAsRead,
+   } = useNotifications({ autoRequestPermission: true });
 
    // Handle hydration mismatch
    useEffect(() => {
@@ -31,6 +46,22 @@ export default function Navbar() {
    useEffect(() => {
       initializeAuth();
    }, [initializeAuth]);
+
+   // Handle notification click - navigate to chat based on user role
+   const handleNotificationClick = (notification: any) => {
+      if (notification.relatedGroup) {
+         // Navigate to correct chat page based on user role
+         if (user?.role === 'instructor') {
+            router.push(
+               `/dashboard/instructor/messages?group=${notification.relatedGroup}`
+            );
+         } else {
+            router.push(
+               `/student/studentMsgs?group=${notification.relatedGroup}`
+            );
+         }
+      }
+   };
 
    return (
       <>
@@ -96,13 +127,27 @@ export default function Navbar() {
             {/* Right Section */}
             <div className="flex gap-3 items-center">
                {/* Icons - Hidden on mobile */}
-               <div className="hidden md:flex gap-3 text-gray-scale-900">
+               <div className="hidden md:flex gap-3 text-gray-scale-900 items-center">
                   <button>
                      <IoIosMoon size={24} />
                   </button>
-                  <button>
-                     <IoMdNotificationsOutline size={24} />
-                  </button>
+
+                  {/* Notification Bell - Show dropdown for authenticated users */}
+                  {isAuthenticated && user ? (
+                     <NotificationDropdown
+                        notifications={notifications}
+                        unreadCount={unreadCount}
+                        isLoading={notificationsLoading}
+                        onMarkAsRead={markAsRead}
+                        onMarkAllAsRead={markAllAsRead}
+                        onNotificationClick={handleNotificationClick}
+                     />
+                  ) : (
+                     <button>
+                        <IoMdNotificationsOutline size={24} />
+                     </button>
+                  )}
+
                   {isAuthenticated && user?.role === 'student' && (
                      <Link
                         href="/student/wishlist"
@@ -227,5 +272,16 @@ export default function Navbar() {
             </div>
          )}
       </>
+   );
+}
+
+/**
+ * Navbar wrapper with AblyProvider for real-time notifications
+ */
+export default function Navbar() {
+   return (
+      <AblyProvider>
+         <NavbarInner />
+      </AblyProvider>
    );
 }

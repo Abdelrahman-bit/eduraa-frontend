@@ -59,15 +59,16 @@ export type CourseDurationUnit = 'Day' | 'Week' | 'Month' | 'Hour';
 
 export interface CourseBasicInfo {
    title: string;
-   subtitle: string;
+   subtitle?: string;
    category: string;
-   subCategory: string;
+   subCategory?: string;
    topic: string;
    primaryLanguage: string;
    subtitleLanguage?: string;
    level: CourseLevel;
    durationValue?: number;
    durationUnit: CourseDurationUnit;
+   price?: number;
 }
 
 export interface UploadedMedia {
@@ -90,7 +91,7 @@ export interface CourseAdvancedInfo {
 }
 
 export interface Lecture {
-   clientId: string;
+   clientId?: string;
    title: string;
    description: string;
    notes: string;
@@ -100,7 +101,7 @@ export interface Lecture {
 }
 
 export interface Section {
-   clientId: string;
+   clientId?: string;
    title: string;
    lectures: Lecture[];
    order?: number;
@@ -133,9 +134,8 @@ export interface CourseBuilderActions {
 export type CourseBuilderStore = CourseBuilderState & CourseBuilderActions;
 
 export interface SignUpData {
-   firstName?: string;
-   lastName?: string;
-   username?: string;
+   firstname?: string;
+   lastname?: string;
    email?: string;
    password?: string;
    confirmPassword?: string;

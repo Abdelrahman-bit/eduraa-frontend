@@ -153,6 +153,25 @@ export default function StudentCoursesPage() {
                      <CourseCard course={course} hideWishlist={true} />
                   </div>
                ))
+            ) : courses.length === 0 ? (
+               <div className="col-span-full flex flex-col items-center justify-center py-20 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200">
+                  <div className="w-16 h-16 bg-white rounded-full flex items-center justify-center shadow-sm mb-4">
+                     <Search className="w-8 h-8 text-gray-300" />
+                  </div>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                     No courses yet
+                  </h3>
+                  <p className="text-gray-500 mb-6 text-center max-w-md">
+                     You haven&apos;t enrolled in any courses yet. Start your
+                     learning journey today!
+                  </p>
+                  <a
+                     href="/all-courses"
+                     className="px-6 py-3 bg-orange-500 text-white font-bold rounded-lg hover:bg-orange-600 transition-colors"
+                  >
+                     Browse Courses
+                  </a>
+               </div>
             ) : (
                <div className="col-span-full text-center py-10 text-gray-500">
                   No courses found matching your filters.

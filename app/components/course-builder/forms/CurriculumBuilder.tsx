@@ -465,8 +465,8 @@ export function CurriculumBuilder() {
             <Button variant="outline" onClick={() => setActiveStep(1)}>
                Previous
             </Button>
-            <Button onClick={handleSave} disabled={mutation.isLoading}>
-               {mutation.isLoading ? 'Saving...' : 'Save & Next'}
+            <Button onClick={handleSave} disabled={mutation.isPending}>
+               {mutation.isPending ? 'Saving...' : 'Save & Next'}
             </Button>
          </div>
       </div>

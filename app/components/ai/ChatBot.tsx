@@ -72,37 +72,26 @@ export default function ChatBot() {
    // Use DefaultChatTransport for proper SDK v5 configuration
    const chatHook = useChat({
       id: chatId,
-      initialMessages: [],
-      maxSteps: 3, // Match server's stopWhen: stepCountIs(3) for multi-step tool calls
       transport: new DefaultChatTransport({
          api: '/api/chat',
-         headers: () => {
+         headers: (): Record<string, string> => {
             const currentToken = localStorage.getItem('token');
             console.log(
                '[ChatBot] Sending request with token:',
                currentToken ? 'YES' : 'NO'
             );
-            return currentToken
-               ? { Authorization: `Bearer ${currentToken}` }
-               : {};
+            if (currentToken) {
+               return { Authorization: `Bearer ${currentToken}` };
+            }
+            return {};
          },
       }),
-      onResponse: (response) => {
-         console.log(
-            'ChatBot: Received response',
-            response.status,
-            response.statusText
-         );
-      },
-      onFinish: (message) => {
-         console.log('ChatBot: Stream finished', message);
-      },
-      onError: (err) => {
-         console.error('ChatBot: Chat error:', err);
-      },
    });
 
-   const { messages, sendMessage, stop, isLoading, error, status } = chatHook;
+   const { messages, sendMessage, stop, error, status } = chatHook;
+
+   // In SDK v5, isLoading is replaced by status checks
+   const isLoading = status === 'submitted' || status === 'streaming';
 
    // Debug: Log status changes to understand streaming behavior
    useEffect(() => {
@@ -357,17 +346,11 @@ export default function ChatBot() {
                         </div>
                      ))}
 
-                     {/* Show typing indicator when:
-                        1. status is 'submitted' or 'streaming', OR isLoading is true
-                        2. AND either the last message is from user, OR the last assistant message has no content yet
-                     */}
-                     {(status === 'submitted' ||
-                        status === 'streaming' ||
-                        isLoading) &&
+                     {/* Show typing indicator when loading and last message is from user or has no parts yet */}
+                     {isLoading &&
                         (messages[messages.length - 1]?.role === 'user' ||
                            (messages[messages.length - 1]?.role ===
                               'assistant' &&
-                              !messages[messages.length - 1]?.content &&
                               (!messages[messages.length - 1]?.parts ||
                                  messages[messages.length - 1]?.parts
                                     ?.length === 0))) && (

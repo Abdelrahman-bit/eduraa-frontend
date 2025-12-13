@@ -5,6 +5,7 @@ import { getUserProfile, UserProfile } from '@/app/services/userService';
 import AccountForm from './components/AccountForm';
 import PasswordForm from './components/PasswordForm';
 import NotificationSettings from './components/NotificationSettings';
+import ChatSettings from './components/ChatSettings';
 
 export default function SettingsPage() {
    const [isLoadingData, setIsLoadingData] = useState(true);
@@ -47,7 +48,10 @@ export default function SettingsPage() {
             {/* 1. Account Settings Section */}
             <AccountForm userData={userData} onAvatarUpdate={fetchProfile} />
 
-            {/* 2. Bottom Grid */}
+            {/* 2. Chat Settings Section */}
+            <ChatSettings />
+
+            {/* 3. Bottom Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                {/* Notifications Section */}
                <NotificationSettings />
