@@ -1,8 +1,7 @@
 import React from 'react';
 
-import { IconType } from 'react-icons/lib';
 type CardProps = {
-   icon: IconType;
+   icon: React.ReactNode;
    iconColor: string;
    backgroundColor: string;
    title: string;
@@ -19,9 +18,9 @@ export default function CategoryCard({
    return (
       <div
          className="flex items-center gap-4 p-2 py-3 lg:p-5 w-full rounded-lg
-        hover:shadow-lg
-        transition-all duration-300 
-        hover:-translate-y-1 cursor-pointer"
+         hover:shadow-lg
+         transition-all duration-300 
+         hover:-translate-y-1 cursor-pointer"
          style={{ backgroundColor }}
       >
          <div

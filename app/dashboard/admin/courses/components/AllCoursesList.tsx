@@ -111,10 +111,14 @@ const AllCoursesList = () => {
 
                      <div className="flex items-center gap-2 mb-4 mt-1">
                         <div className="w-6 h-6 rounded-full bg-orange-100 flex items-center justify-center text-orange-600 shrink-0 text-xs font-bold">
-                           {course.instructor?.name?.charAt(0) || 'U'}
+                           {typeof course.instructor === 'object'
+                              ? course.instructor?.firstname?.charAt(0)
+                              : 'U'}
                         </div>
                         <span className="text-xs text-gray-500 truncate font-medium">
-                           {course.instructor?.name}
+                           {typeof course.instructor === 'object'
+                              ? `${course.instructor?.firstname || ''} ${course.instructor?.lastname || ''}`.trim()
+                              : 'Unknown'}
                         </span>
                      </div>
 
@@ -179,15 +183,21 @@ const AllCoursesList = () => {
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                            <div className="bg-gray-50 p-3 rounded-xl border border-gray-100 flex items-center gap-3">
                               <div className="w-10 h-10 rounded-full bg-white border border-gray-200 flex items-center justify-center text-orange-600 font-bold shadow-sm">
-                                 {selectedCourse.instructor?.name?.charAt(0) ||
-                                    'U'}
+                                 {typeof selectedCourse.instructor === 'object'
+                                    ? selectedCourse.instructor?.firstname?.charAt(
+                                         0
+                                      )
+                                    : 'U'}
                               </div>
                               <div className="overflow-hidden">
                                  <p className="text-[10px] text-gray-400 uppercase font-bold">
                                     Instructor
                                  </p>
                                  <p className="text-sm font-bold text-gray-900 truncate">
-                                    {selectedCourse.instructor?.name}
+                                    {typeof selectedCourse.instructor ===
+                                    'object'
+                                       ? `${selectedCourse.instructor?.firstname || ''} ${selectedCourse.instructor?.lastname || ''}`.trim()
+                                       : 'Unknown'}
                                  </p>
                               </div>
                            </div>

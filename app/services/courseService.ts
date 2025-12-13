@@ -50,6 +50,7 @@ export interface CourseDTO {
    createdAt?: string;
    updatedAt?: string;
    students?: number;
+   price?: { amount: number; currency?: string };
 }
 
 export type CourseAdvancedInfoPayload = {

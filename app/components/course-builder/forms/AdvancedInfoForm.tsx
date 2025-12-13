@@ -411,8 +411,8 @@ export function AdvancedInfoForm() {
                   >
                      Previous
                   </Button>
-                  <Button type="submit" disabled={mutation.isLoading}>
-                     {mutation.isLoading ? 'Saving...' : 'Save & Next'}
+                  <Button type="submit" disabled={mutation.isPending}>
+                     {mutation.isPending ? 'Saving...' : 'Save & Next'}
                   </Button>
                </div>
             </form>

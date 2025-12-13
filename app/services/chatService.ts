@@ -41,6 +41,7 @@ export interface ChatGroup {
    members: ChatGroupMember[];
    settings: ChatGroupSettings;
    memberCount: number;
+   unreadCount?: number;
    lastMessageAt: string | null;
    createdAt: string;
    updatedAt: string;

@@ -1,100 +1,115 @@
 import React from 'react';
 import Image from 'next/image';
 import { FaStar } from 'react-icons/fa';
-import { LuUserRound } from 'react-icons/lu';
 import { FiBarChart } from 'react-icons/fi';
 import { CiClock2 } from 'react-icons/ci';
+import Link from 'next/link';
+import { Course } from '@/app/services/courses';
 
-export default function CourseHorizontalCard() {
+interface CourseHorizontalCardProps {
+   course: Course;
+}
+
+export default function CourseHorizontalCard({
+   course,
+}: CourseHorizontalCardProps) {
+   const { basicInfo, advancedInfo, price, instructor, _id } = course;
+   const instructorName =
+      typeof instructor === 'object'
+         ? `${instructor.firstname} ${instructor.lastname}`
+         : 'Instructor';
+   const instructorAvatar =
+      typeof instructor === 'object' ? instructor.avatar : null;
+
    return (
-      <div
-         className="flex flex-col md:flex-row w-full border border-gray-100 rounded-sm overflow-hidden bg-white 
-             hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 cursor-pointer"
-      >
-         <div className="relative w-full aspect-[4/3] md:w-[280px] md:aspect-auto md:h-auto shrink-0">
-            <Image
-               src="/course2.png"
-               alt="Course Image"
-               fill
-               className="object-cover"
-               sizes="(max-width: 768px) 100vw, 33vw"
-            />
-         </div>
+      <Link href={`/all-courses/${_id}`} className="block w-full">
+         <div
+            className="flex flex-col md:flex-row w-full border border-gray-100 rounded-lg overflow-hidden bg-white 
+              hover:shadow-xl transition-all duration-300 hover:-translate-y-0.5 cursor-pointer h-full"
+         >
+            <div className="relative w-full aspect-[4/3] md:w-[240px] md:aspect-auto shrink-0 bg-gray-100">
+               <Image
+                  src={advancedInfo.thumbnailUrl || '/course.png'}
+                  alt={basicInfo.title}
+                  fill
+                  className="object-cover"
+                  sizes="(max-width: 768px) 100vw, 33vw"
+               />
+            </div>
 
-         {/* Course Content - Flex-1 to occupy remaining space */}
-         <div className="flex flex-col flex-1 p-4 md:p-6 justify-between gap-4">
-            {/* Top Row: Category Badge & Price */}
-            <div>
-               <div className="flex justify-between items-start mb-2">
-                  {/* Category Badge */}
-                  <p className="text-xs py-1 px-2 bg-green-100 text-green-700 font-semibold uppercase rounded-sm">
-                     HEALTH & FITNESS
+            {/* Course Content - Flex-1 to occupy remaining space */}
+            <div className="flex flex-col flex-1 p-4 md:p-5 justify-between gap-3">
+               {/* Top Row: Category Badge & Price */}
+               <div>
+                  <div className="flex justify-between items-start mb-2">
+                     {/* Category Badge */}
+                     <span className="text-[10px] py-1 px-2 bg-orange-50 text-orange-600 font-bold uppercase rounded tracking-wider">
+                        {basicInfo.category}
+                     </span>
+
+                     {/* Price */}
+                     <div className="flex gap-2 items-end">
+                        <p className="text-lg font-bold text-gray-900">
+                           {price.amount > 0 ? `$${price.amount}` : 'Free'}
+                        </p>
+                     </div>
+                  </div>
+
+                  {/* Course Title */}
+                  <h3 className="text-lg font-bold text-gray-900 line-clamp-2 leading-tight mb-1">
+                     {basicInfo.title}
+                  </h3>
+               </div>
+
+               {/* Instructor and Rating Row */}
+               {/* Instructor Info */}
+               <div className="flex items-center gap-2">
+                  <div className="relative w-6 h-6 rounded-full overflow-hidden bg-gray-200">
+                     {instructorAvatar ? (
+                        <Image
+                           src={instructorAvatar}
+                           alt={instructorName}
+                           fill
+                           className="object-cover"
+                        />
+                     ) : (
+                        <div className="w-full h-full flex items-center justify-center text-[10px] text-gray-500">
+                           {instructorName[0]}
+                        </div>
+                     )}
+                  </div>
+                  <p className="text-sm font-medium text-gray-600 truncate">
+                     {instructorName}
                   </p>
+               </div>
 
-                  {/* Price */}
-                  <div className="flex gap-2 items-end">
-                     <p className="text-xl font-bold text-gray-900">$14.00</p>
-                     {/* Strikethrough price, lighter gray color */}
-                     <p className="text-sm line-through font-normal text-gray-400">
-                        $26.00
+               {/* Course Features / Statistics */}
+               <div className="flex items-center justify-between border-t border-gray-50 pt-3 mt-1">
+                  {/* Rating */}
+                  <div className="flex gap-1.5 items-center">
+                     <FaStar size={14} className="text-yellow-400" />
+                     <p className="text-sm font-bold text-gray-900">4.8</p>
+                     <p className="text-xs text-gray-500">(120)</p>
+                  </div>
+
+                  {/* Level */}
+                  <div className="hidden sm:flex gap-1.5 items-center">
+                     <FiBarChart size={16} className="text-gray-400" />
+                     <p className="text-xs font-medium text-gray-500 capitalize">
+                        {basicInfo.level}
+                     </p>
+                  </div>
+
+                  {/* Duration */}
+                  <div className="flex gap-1.5 items-center">
+                     <CiClock2 size={16} className="text-gray-400" />
+                     <p className="text-xs font-medium text-gray-500">
+                        {basicInfo.durationValue} {basicInfo.durationUnit}
                      </p>
                   </div>
                </div>
-
-               {/* Course Title - Added line-clamp-2 for safety */}
-               <h3 className="text-lg font-semibold text-gray-900 line-clamp-2">
-                  Investing In Stocks The Complete Course! (13 H...)
-               </h3>
-            </div>
-
-            {/* Instructor and Rating Row */}
-            <div className="flex justify-between items-center py-3 border-b border-gray-100">
-               {/* Instructor Info */}
-               <div className="flex gap-2 items-center">
-                  <Image
-                     src="/avatar.jpg"
-                     alt="Instructor Image"
-                     width={32}
-                     height={32}
-                     className="rounded-full object-cover shrink-0"
-                  />
-                  <p className="text-base font-medium text-gray-700">
-                     Kevin Gilbert
-                  </p>
-               </div>
-
-               {/* Rating (Pushed to the right) */}
-               <div className="flex gap-1.5 items-center">
-                  <FaStar size={18} className="text-orange-400" />
-                  <p className="text-base font-bold text-gray-900">5.0</p>
-                  <p className="text-sm font-normal text-gray-500">(357,914)</p>
-               </div>
-            </div>
-
-            {/* Course Features / Statistics */}
-            <div className="flex justify-between flex-wrap gap-4 pt-1">
-               {/* Students */}
-               <div className="flex gap-1.5 items-center">
-                  <LuUserRound size={20} className="text-purple-600 shrink-0" />
-                  <p className="text-sm font-medium text-gray-700">265.5K</p>
-                  <p className="text-sm text-gray-500 hidden sm:block">
-                     students
-                  </p>
-               </div>
-
-               {/* Level */}
-               <div className="flex gap-1.5 items-center">
-                  <FiBarChart size={20} className="text-red-500 shrink-0" />
-                  <p className="text-sm font-medium text-gray-700">Beginner</p>
-               </div>
-
-               {/* Duration */}
-               <div className="flex gap-1.5 items-center">
-                  <CiClock2 size={20} className="text-green-700 shrink-0" />
-                  <p className="text-sm font-medium text-gray-700">6 Hours</p>
-               </div>
             </div>
          </div>
-      </div>
+      </Link>
    );
 }

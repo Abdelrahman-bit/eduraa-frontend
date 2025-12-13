@@ -35,6 +35,7 @@ const ChatGroupItem: React.FC<{
       ? formatDistanceToNow(new Date(group.lastMessageAt))
       : null;
    const status = group.course?.status;
+   const unreadCount = group.unreadCount || 0;
 
    return (
       <button
@@ -84,14 +85,22 @@ const ChatGroupItem: React.FC<{
          <div className="flex-1 min-w-0 py-0.5">
             <div className="flex items-center justify-between gap-2">
                <h3
-                  className={`font-medium truncate text-sm transition-colors
+                  className={`font-medium truncate text-sm transition-colors flex-1
                   ${isFaded ? 'text-gray-500' : isSelected ? 'text-orange-700' : 'text-gray-800 group-hover:text-gray-900'}`}
                >
                   {courseTitle}
                </h3>
-               {group.settings?.instructorOnlyMode && (
-                  <Lock className="w-3.5 h-3.5 text-orange-400 flex-shrink-0" />
-               )}
+               <div className="flex items-center gap-1.5 flex-shrink-0">
+                  {/* Unread count badge */}
+                  {unreadCount > 0 && (
+                     <span className="min-w-[20px] h-5 px-1.5 bg-orange-500 text-white text-xs font-bold rounded-full flex items-center justify-center">
+                        {unreadCount > 99 ? '99+' : unreadCount}
+                     </span>
+                  )}
+                  {group.settings?.instructorOnlyMode && (
+                     <Lock className="w-3.5 h-3.5 text-orange-400" />
+                  )}
+               </div>
             </div>
 
             <div className="flex items-center gap-1.5 mt-1">

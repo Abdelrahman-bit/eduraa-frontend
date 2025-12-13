@@ -11,8 +11,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-   title: 'E-learning Platform',
-   description: 'E-learning platform for students and teachers',
+   title: 'Eduraa - E-learning Platform',
+   description:
+      'Eduraa is a leading e-learning platform connecting students and teachers worldwide.',
 };
 
 export default function RootLayout({

@@ -1,6 +1,22 @@
 'use client';
 
+/**
+ * ChatContainer Component (Ably Version)
+ *
+ * Main chat container combining sidebar and chat window.
+ * Uses Ably for real-time messaging via the useAblyChat hook.
+ *
+ * CHANGES FROM SOCKET.IO VERSION:
+ * - Replaced useSocket with useAblyChat
+ * - Removed manual room join/leave (Ably handles via channel subscription)
+ * - Messages are now sent via REST API first (for persistence),
+ *   then broadcast via Ably (for real-time delivery)
+ * - Wrapped with AblyProvider for Ably context
+ * - Supports ?group= query param for deep linking from notifications
+ */
+
 import React, { useEffect, useState, useCallback } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { ChatSidebar } from './ChatSidebar';
 import { ChatWindow } from './ChatWindow';
 import {
@@ -9,8 +25,10 @@ import {
    getChatGroups,
    getChatMessages,
    updateChatSettings,
+   sendMessageRest,
 } from '@/app/services/chatService';
-import { useSocket } from '@/app/hooks/useSocket';
+import { useAblyChat } from '@/app/hooks/useAblyChat';
+import { AblyProvider } from '@/app/providers/AblyProvider';
 import useStore from '@/app/store/useStore';
 import toast from 'react-hot-toast';
 import { Lock, LockOpen, X, Settings } from 'lucide-react';
@@ -25,9 +43,10 @@ interface TypingUser {
 }
 
 /**
- * Main chat container component combining sidebar and chat window
+ * Inner component that uses Ably hooks
+ * Must be wrapped with AblyProvider
  */
-export const ChatContainer: React.FC<ChatContainerProps> = ({ userRole }) => {
+const ChatContainerInner: React.FC<ChatContainerProps> = ({ userRole }) => {
    const { user } = useStore();
    const [groups, setGroups] = useState<ChatGroup[]>([]);
    const [selectedGroup, setSelectedGroup] = useState<ChatGroup | null>(null);
@@ -39,31 +58,40 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ userRole }) => {
    const [isMobileView, setIsMobileView] = useState(false);
    const [showSidebar, setShowSidebar] = useState(true);
 
-   // Socket connection
+   // Current user info
+   const currentUserId = user?.id?.toString() || '';
+   const currentUserInfo = {
+      firstname: user?.firstName || '',
+      lastname: user?.lastName || '',
+   };
+
+   // Ably chat hook - connects to channel based on selected group
    const {
-      socket,
       isConnected,
-      joinRoom,
-      leaveRoom,
-      sendMessage: socketSendMessage,
-      startTyping,
-      stopTyping,
-   } = useSocket({
+      sendMessage: ablySendMessage,
+      startTyping: ablyStartTyping,
+      stopTyping: ablyStopTyping,
+      typingUsers: ablyTypingUsers,
+      connectionState,
+   } = useAblyChat(selectedGroup?._id || null, {
+      currentUserId,
       onNewMessage: (message) => {
-         // Only add if it's for the current group
-         if (selectedGroup && message.chatGroup === selectedGroup._id) {
-            setMessages((prev) => {
-               // Avoid duplicates
-               if (prev.some((m) => m._id === message._id)) return prev;
-               return [...prev, message];
-            });
-         }
+         // Add new message to the list
+         console.log(
+            '[ChatContainer] New message received via Ably:',
+            message._id
+         );
+         setMessages((prev) => {
+            // Avoid duplicates
+            if (prev.some((m) => m._id === message._id)) return prev;
+            return [...prev, message];
+         });
       },
       onError: (error) => {
          toast.error(error.message);
       },
       onUserTyping: (data) => {
-         if (data.userId !== user?.id?.toString()) {
+         if (data.userId !== currentUserId) {
             setTypingUsers((prev) => {
                if (prev.some((u) => u.userId === data.userId)) return prev;
                return [...prev, data];
@@ -74,17 +102,38 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ userRole }) => {
          setTypingUsers((prev) => prev.filter((u) => u.userId !== data.userId));
       },
       onSettingsUpdated: (data) => {
-         // Update the group settings locally
+         // Real-time settings update from instructor
+         console.log('[ChatContainer] Settings updated via Ably:', data);
+
+         // Update the selected group if it matches
+         if (selectedGroup?._id === data.groupId) {
+            setSelectedGroup((prev) =>
+               prev ? { ...prev, settings: data.settings } : prev
+            );
+
+            // Show notification to user about the change
+            if (data.settings.instructorOnlyMode) {
+               toast(
+                  'Chat is now in broadcast mode - only instructor can send messages',
+                  {
+                     icon: '🔒',
+                     duration: 4000,
+                  }
+               );
+            } else {
+               toast('Chat is now open - everyone can send messages', {
+                  icon: '🔓',
+                  duration: 4000,
+               });
+            }
+         }
+
+         // Update groups list
          setGroups((prev) =>
             prev.map((g) =>
                g._id === data.groupId ? { ...g, settings: data.settings } : g
             )
          );
-         if (selectedGroup?._id === data.groupId) {
-            setSelectedGroup((prev) =>
-               prev ? { ...prev, settings: data.settings } : prev
-            );
-         }
       },
    });
 
@@ -98,6 +147,10 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ userRole }) => {
       return () => window.removeEventListener('resize', checkMobile);
    }, []);
 
+   // Get group ID from URL query parameter (for deep linking from notifications)
+   const searchParams = useSearchParams();
+   const groupIdFromUrl = searchParams.get('group');
+
    // Fetch chat groups on mount
    useEffect(() => {
       const fetchGroups = async () => {
@@ -105,6 +158,16 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ userRole }) => {
             setIsLoadingGroups(true);
             const data = await getChatGroups();
             setGroups(data);
+
+            // Auto-select group from URL parameter if present
+            if (groupIdFromUrl && !selectedGroup) {
+               const matchingGroup = data.find(
+                  (g: ChatGroup) => g._id === groupIdFromUrl
+               );
+               if (matchingGroup) {
+                  setSelectedGroup(matchingGroup);
+               }
+            }
          } catch (error: any) {
             toast.error(error.message || 'Failed to load chat groups');
          } finally {
@@ -113,7 +176,7 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ userRole }) => {
       };
 
       fetchGroups();
-   }, []);
+   }, [groupIdFromUrl]);
 
    // Fetch messages when group changes
    useEffect(() => {
@@ -133,26 +196,24 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ userRole }) => {
 
       fetchMessages();
 
-      // Join the socket room
-      if (isConnected) {
-         joinRoom(selectedGroup._id);
-      }
-
       // Clear typing users when switching groups
       setTypingUsers([]);
-
-      // Cleanup: leave room when switching
-      return () => {
-         if (selectedGroup && isConnected) {
-            leaveRoom(selectedGroup._id);
-         }
-      };
-   }, [selectedGroup?._id, isConnected]);
+   }, [selectedGroup?._id]);
 
    // Handle group selection
    const handleSelectGroup = useCallback(
       (group: ChatGroup) => {
          setSelectedGroup(group);
+
+         // Reset unread count in the groups list when selecting
+         if (group.unreadCount && group.unreadCount > 0) {
+            setGroups((prev) =>
+               prev.map((g) =>
+                  g._id === group._id ? { ...g, unreadCount: 0 } : g
+               )
+            );
+         }
+
          if (isMobileView) {
             setShowSidebar(false);
          }
@@ -161,26 +222,45 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ userRole }) => {
    );
 
    // Handle sending message
+   // Flow: Save to DB via REST → Broadcast via Ably
    const handleSendMessage = useCallback(
-      (content: string) => {
+      async (content: string) => {
          if (!selectedGroup || !content.trim()) return;
-         socketSendMessage(selectedGroup._id, content);
+
+         try {
+            // 1. Save message to database via REST API
+            const savedMessage = await sendMessageRest(
+               selectedGroup._id,
+               content
+            );
+
+            // 2. Add to local state immediately for sender
+            setMessages((prev) => {
+               if (prev.some((m) => m._id === savedMessage._id)) return prev;
+               return [...prev, savedMessage];
+            });
+
+            // 3. Broadcast via Ably for other users
+            await ablySendMessage(content, savedMessage);
+         } catch (error: any) {
+            toast.error(error.message || 'Failed to send message');
+         }
       },
-      [selectedGroup, socketSendMessage]
+      [selectedGroup, ablySendMessage]
    );
 
    // Handle typing indicators
    const handleTypingStart = useCallback(() => {
-      if (selectedGroup) {
-         startTyping(selectedGroup._id);
+      if (selectedGroup && currentUserId) {
+         ablyStartTyping(currentUserId, currentUserInfo);
       }
-   }, [selectedGroup, startTyping]);
+   }, [selectedGroup, currentUserId, currentUserInfo, ablyStartTyping]);
 
    const handleTypingStop = useCallback(() => {
-      if (selectedGroup) {
-         stopTyping(selectedGroup._id);
+      if (selectedGroup && currentUserId) {
+         ablyStopTyping(currentUserId);
       }
-   }, [selectedGroup, stopTyping]);
+   }, [selectedGroup, currentUserId, ablyStopTyping]);
 
    // Handle settings update
    const handleUpdateSettings = async (instructorOnlyMode: boolean) => {
@@ -217,6 +297,12 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ userRole }) => {
       setSelectedGroup(null);
    };
 
+   // Combine typing users from Ably hook and local state
+   const allTypingUsers = [...typingUsers, ...ablyTypingUsers].filter(
+      (user, index, self) =>
+         index === self.findIndex((u) => u.userId === user.userId)
+   );
+
    return (
       <div className="flex bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden h-full w-full">
          {/* Sidebar */}
@@ -245,13 +331,13 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ userRole }) => {
          >
             <ChatWindow
                group={selectedGroup}
-               currentUserId={user?.id?.toString() || ''}
+               currentUserId={currentUserId}
                isConnected={isConnected}
                messages={messages}
                onSendMessage={handleSendMessage}
                onTypingStart={handleTypingStart}
                onTypingStop={handleTypingStop}
-               typingUsers={typingUsers}
+               typingUsers={allTypingUsers}
                onSettingsClick={() => setShowSettingsModal(true)}
                onBack={handleBack}
                showBackButton={isMobileView}
@@ -349,6 +435,18 @@ export const ChatContainer: React.FC<ChatContainerProps> = ({ userRole }) => {
             </div>
          )}
       </div>
+   );
+};
+
+/**
+ * Main ChatContainer export
+ * Wraps the inner component with AblyProvider
+ */
+export const ChatContainer: React.FC<ChatContainerProps> = ({ userRole }) => {
+   return (
+      <AblyProvider>
+         <ChatContainerInner userRole={userRole} />
+      </AblyProvider>
    );
 };
 

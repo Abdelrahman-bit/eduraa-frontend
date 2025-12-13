@@ -1,9 +1,11 @@
-// components/CourseCard.jsx
-import { Star, Clock } from 'lucide-react';
+// components/CourseListCard.tsx
+import { useState } from 'react';
+import { Star, Clock, Loader2 } from 'lucide-react';
 import { IoMdHeart, IoMdHeartEmpty } from 'react-icons/io';
 import Link from 'next/link';
 import { Course } from '@/app/services/courses';
 import useBearStore from '@/app/store/useStore';
+import toast from 'react-hot-toast';
 
 const getCategoryColor = (category: string) => {
    const colors: Record<string, string> = {
@@ -35,21 +37,35 @@ const CourseListCard = ({ course }: { course: Course }) => {
       isAuthenticated,
       user,
    } = useBearStore();
+   const [isWishlistLoading, setIsWishlistLoading] = useState(false);
+
    const isWishlisted = isCourseInWishlist(course._id);
    const isEnrolled = isCourseEnrolled(course._id);
    const isStudent = user?.role === 'student';
 
-   const handleWishlistClick = (e: React.MouseEvent) => {
+   const handleWishlistClick = async (e: React.MouseEvent) => {
       e.preventDefault();
       e.stopPropagation();
+
       if (!isAuthenticated) {
-         // Optionally show login toast
+         toast.error('Please login to manage wishlist');
          return;
       }
-      if (isWishlisted) {
-         removeFromWishlist(course._id);
-      } else {
-         addToWishlist(course._id);
+
+      setIsWishlistLoading(true);
+      try {
+         if (isWishlisted) {
+            await removeFromWishlist(course._id);
+            toast.success('Removed from wishlist successfully');
+         } else {
+            await addToWishlist(course._id);
+            toast.success('Added to wishlist successfully');
+         }
+      } catch (error) {
+         toast.error('Failed to update wishlist');
+         console.error(error);
+      } finally {
+         setIsWishlistLoading(false);
       }
    };
 
@@ -68,9 +84,12 @@ const CourseListCard = ({ course }: { course: Course }) => {
             {isStudent && !isEnrolled && (
                <button
                   onClick={handleWishlistClick}
-                  className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-sm rounded-full transition-opacity hover:text-red-500 text-gray-400 z-10"
+                  disabled={isWishlistLoading}
+                  className="absolute top-3 right-3 p-2 bg-white/90 backdrop-blur-sm rounded-full transition-opacity hover:text-red-500 text-gray-400 z-10 disabled:cursor-not-allowed cursor-pointer"
                >
-                  {isWishlisted ? (
+                  {isWishlistLoading ? (
+                     <Loader2 className="w-5 h-5 animate-spin text-orange-500" />
+                  ) : isWishlisted ? (
                      <IoMdHeart className="w-5 h-5 text-red-500" />
                   ) : (
                      <IoMdHeartEmpty className="w-5 h-5" />
