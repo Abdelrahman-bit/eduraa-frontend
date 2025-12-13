@@ -83,10 +83,20 @@ function NavbarInner() {
             </ul>
             <ul className="flex gap-8 p-4">
                <li>
-                  <Link href="/mode">Dark</Link>
+                  <button
+                     type="button"
+                     className="hover:text-gray-scale-500/80 transition-colors"
+                  >
+                     Dark
+                  </button>
                </li>
                <li>
-                  <Link href="/language">English</Link>
+                  <button
+                     type="button"
+                     className="hover:text-gray-scale-500/80 transition-colors"
+                  >
+                     English
+                  </button>
                </li>
             </ul>
          </nav>
