@@ -60,10 +60,16 @@ const nextConfig: NextConfig = {
       ],
    },
    async rewrites() {
+      // Hardcode backend URL for chat to prevent redirect loops
+      const backendUrl =
+         process.env.NODE_ENV === 'production'
+            ? 'https://graduation-project-backend-nine.vercel.app/api'
+            : 'http://localhost:5000/api';
+
       return [
          {
             source: '/api/chat',
-            destination: `${API_URL}/chat`,
+            destination: `${backendUrl}/chat`,
          },
       ];
    },
