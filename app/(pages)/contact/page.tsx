@@ -1,5 +1,6 @@
 import React from 'react';
 import Image from 'next/image';
+import { Metadata } from 'next';
 import { Mail, Phone, ArrowRight } from 'lucide-react';
 import {
    MotionContainer,
@@ -8,6 +9,20 @@ import {
    MotionScale,
 } from '../../components/global/Motion/Motion';
 import { BreadcrumbHeader } from '../../components/global/Breadcrumb/Breadcrumb';
+
+export const metadata: Metadata = {
+   title: 'Contact Us',
+   description:
+      'Get in touch with Eduraa. Contact our customer success team for inquiries about courses, instructor opportunities, or general support. Visit our offices in Los Angeles, Tokyo, Moscow, or Mumbai.',
+   keywords: [
+      'contact Eduraa',
+      'customer support',
+      'get in touch',
+      'Eduraa offices',
+      'contact form',
+      'customer service',
+   ],
+};
 
 // --- Types ---
 type Branch = {

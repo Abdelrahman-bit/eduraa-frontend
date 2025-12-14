@@ -2,8 +2,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { IoIosMoon } from 'react-icons/io';
-import { IoMdNotificationsOutline } from 'react-icons/io';
+
 import { Menu, X } from 'lucide-react';
 import Button from '../Button/Button';
 import ProfileDropdown from '../ProfileDropdown/ProfileDropdown';
@@ -11,7 +10,7 @@ import useBearStore from '@/app/store/useStore';
 import { NotificationDropdown } from '@/app/components/notifications/NotificationDropdown';
 import { useNotifications } from '@/app/hooks/useNotifications';
 import { AblyProvider, useAblyContext } from '@/app/providers/AblyProvider';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 
 import { IoMdHeartEmpty } from 'react-icons/io';
 
@@ -22,6 +21,7 @@ function NavbarInner() {
    const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
    const [isHydrated, setIsHydrated] = useState(false);
    const router = useRouter();
+   const pathname = usePathname();
    const { user, isAuthenticated, loading, initializeAuth, wishlist } =
       useBearStore();
 
@@ -47,7 +47,21 @@ function NavbarInner() {
       initializeAuth();
    }, [initializeAuth]);
 
-   // Handle notification click - navigate to chat based on user role
+   // Search state
+   const [searchQuery, setSearchQuery] = useState('');
+
+   const handleSearch = () => {
+      if (!searchQuery.trim()) return;
+      router.push(`/all-courses?search=${encodeURIComponent(searchQuery)}`);
+   };
+
+   // Handle key press for search
+   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+      if (e.key === 'Enter') {
+         handleSearch();
+      }
+   };
+
    const handleNotificationClick = (notification: any) => {
       if (notification.relatedGroup) {
          // Navigate to correct chat page based on user role
@@ -69,34 +83,40 @@ function NavbarInner() {
          <nav className="hidden md:flex justify-between bg-gray-scale-900 text-gray-scale-500 px-6 text-body-md font-medium">
             <ul className="flex gap-8 p-4">
                <li>
-                  <Link href="/">Home</Link>
-               </li>
-               <li>
-                  <Link href="/all-courses">Courses</Link>
-               </li>
-               <li>
-                  <Link href="/about">About</Link>
-               </li>
-               <li>
-                  <Link href="/contact">Contact</Link>
-               </li>
-            </ul>
-            <ul className="flex gap-8 p-4">
-               <li>
-                  <button
-                     type="button"
-                     className="hover:text-gray-scale-500/80 transition-colors"
+                  <Link
+                     href="/"
+                     className={pathname === '/' ? 'text-orange-500' : ''}
                   >
-                     Dark
-                  </button>
+                     Home
+                  </Link>
                </li>
                <li>
-                  <button
-                     type="button"
-                     className="hover:text-gray-scale-500/80 transition-colors"
+                  <Link
+                     href="/all-courses"
+                     className={
+                        pathname === '/all-courses' ? 'text-orange-500' : ''
+                     }
                   >
-                     English
-                  </button>
+                     Courses
+                  </Link>
+               </li>
+               <li>
+                  <Link
+                     href="/about"
+                     className={pathname === '/about' ? 'text-orange-500' : ''}
+                  >
+                     About
+                  </Link>
+               </li>
+               <li>
+                  <Link
+                     href="/contact"
+                     className={
+                        pathname === '/contact' ? 'text-orange-500' : ''
+                     }
+                  >
+                     Contact
+                  </Link>
                </li>
             </ul>
          </nav>
@@ -108,7 +128,7 @@ function NavbarInner() {
                <Link href="/">
                   <Image
                      src="/GraduationCap.png"
-                     alt="eTutor Logo"
+                     alt="Eduraa Logo"
                      width={40}
                      height={40}
                   />
@@ -116,20 +136,13 @@ function NavbarInner() {
 
                {/* Desktop Search */}
                <div className="hidden lg:flex gap-3 items-center">
-                  <select
-                     name=""
-                     id=""
-                     className="w-32 h-12 border-2 border-gray-scale-100 px-2 text-sm"
-                  >
-                     <option value="Courses">Browse</option>
-                     <option value="Courses">Courses</option>
-                     <option value="Teachers">Teachers</option>
-                     <option value="Students">Students</option>
-                  </select>
                   <input
                      type="text"
+                     value={searchQuery}
+                     onChange={(e) => setSearchQuery(e.target.value)}
+                     onKeyDown={handleKeyDown}
                      placeholder="What do you want to learn"
-                     className="w-64 xl:w-96 h-12 border-2 border-gray-scale-100 px-2 text-sm"
+                     className="w-64 xl:w-96 h-12 border-2 border-gray-scale-100 px-2 text-sm focus:outline-none focus:border-orange-500"
                   />
                </div>
             </div>
@@ -138,12 +151,9 @@ function NavbarInner() {
             <div className="flex gap-3 items-center">
                {/* Icons - Hidden on mobile */}
                <div className="hidden md:flex gap-3 text-gray-scale-900 items-center">
-                  <button>
-                     <IoIosMoon size={24} />
-                  </button>
-
                   {/* Notification Bell - Show dropdown for authenticated users */}
-                  {isAuthenticated && user ? (
+                  {/* Notification Bell - Show dropdown for authenticated users */}
+                  {isAuthenticated && user && (
                      <NotificationDropdown
                         notifications={notifications}
                         unreadCount={unreadCount}
@@ -152,10 +162,6 @@ function NavbarInner() {
                         onMarkAllAsRead={markAllAsRead}
                         onNotificationClick={handleNotificationClick}
                      />
-                  ) : (
-                     <button>
-                        <IoMdNotificationsOutline size={24} />
-                     </button>
                   )}
 
                   {isAuthenticated && user?.role === 'student' && (
@@ -209,20 +215,13 @@ function NavbarInner() {
                <div className="flex flex-col gap-4">
                   {/* Mobile Search */}
                   <div className="flex flex-col gap-2">
-                     <select
-                        name=""
-                        id=""
-                        className="w-full h-12 border-2 border-gray-scale-100 px-2 text-sm"
-                     >
-                        <option value="Courses">Browse</option>
-                        <option value="Courses">Courses</option>
-                        <option value="Teachers">Teachers</option>
-                        <option value="Students">Students</option>
-                     </select>
                      <input
                         type="text"
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        onKeyDown={handleKeyDown}
                         placeholder="What do you want to learn"
-                        className="w-full h-12 border-2 border-gray-scale-100 px-2 text-sm"
+                        className="w-full h-12 border-2 border-gray-scale-100 px-2 text-sm focus:outline-none focus:border-orange-500"
                      />
                   </div>
 
@@ -230,28 +229,44 @@ function NavbarInner() {
                   <div className="flex flex-col gap-2 border-t pt-4">
                      <Link
                         href="/"
-                        className="py-2 text-gray-scale-700 hover:text-orange-500"
+                        className={`py-2 hover:text-orange-500 ${
+                           pathname === '/'
+                              ? 'text-orange-500'
+                              : 'text-gray-scale-700'
+                        }`}
                         onClick={() => setIsMobileMenuOpen(false)}
                      >
                         Home
                      </Link>
                      <Link
                         href="/courses"
-                        className="py-2 text-gray-scale-700 hover:text-orange-500"
+                        className={`py-2 hover:text-orange-500 ${
+                           pathname === '/courses'
+                              ? 'text-orange-500'
+                              : 'text-gray-scale-700'
+                        }`}
                         onClick={() => setIsMobileMenuOpen(false)}
                      >
                         Courses
                      </Link>
                      <Link
                         href="/about"
-                        className="py-2 text-gray-scale-700 hover:text-orange-500"
+                        className={`py-2 hover:text-orange-500 ${
+                           pathname === '/about'
+                              ? 'text-orange-500'
+                              : 'text-gray-scale-700'
+                        }`}
                         onClick={() => setIsMobileMenuOpen(false)}
                      >
                         About
                      </Link>
                      <Link
                         href="/contact"
-                        className="py-2 text-gray-scale-700 hover:text-orange-500"
+                        className={`py-2 hover:text-orange-500 ${
+                           pathname === '/contact'
+                              ? 'text-orange-500'
+                              : 'text-gray-scale-700'
+                        }`}
                         onClick={() => setIsMobileMenuOpen(false)}
                      >
                         Contact

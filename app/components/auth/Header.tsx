@@ -16,12 +16,12 @@ const Header = () => {
             <div className="flex">
                <Image
                   src={'/GraduationCap.png'}
-                  alt="eTutor Logo"
+                  alt="Eduraa Logo"
                   width={40}
                   height={40}
                />
                <a href="/" className="text-2xl font-bold ml-2">
-                  ETutor
+                  Eduraa
                </a>
             </div>
             <div className="flex">
