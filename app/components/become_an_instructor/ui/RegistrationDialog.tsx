@@ -27,11 +27,13 @@ import toast from 'react-hot-toast';
 import { useMutation } from '@tanstack/react-query';
 import { formSchema } from '../validation/formSchema';
 import { applyForJob } from '@/app/services/instructorService';
+
 export default function RegistrationDialog() {
    const form = useForm<z.infer<typeof formSchema>>({
       resolver: zodResolver(formSchema),
       defaultValues: {
-         name: '',
+         firstname: '',
+         lastname: '',
          email: '',
          phoneNumber: '',
       },
@@ -52,14 +54,20 @@ export default function RegistrationDialog() {
             }
          );
       },
-      onError: (error: Error) => {
-         toast.error(error.message || 'An error occurred. Please try again.');
+      onError: (error: any) => {
+         const message =
+            error?.response?.data?.message ||
+            error.message ||
+            'An error occurred. Please try again.';
+         toast.error(message);
       },
    });
+
    async function onSubmit(values: z.infer<typeof formSchema>) {
       const { phoneNumber, ...rest } = values;
       mutate({ ...rest, phone: phoneNumber });
    }
+
    return (
       <>
          <Dialog open={open} onOpenChange={setOpen}>
@@ -84,25 +92,46 @@ export default function RegistrationDialog() {
                      onSubmit={form.handleSubmit(onSubmit)}
                      className="space-y-5 py-4"
                   >
-                     <FormField
-                        control={form.control}
-                        name="name"
-                        render={({ field }) => (
-                           <FormItem>
-                              <FormLabel className="text-gray-700">
-                                 Full Name
-                              </FormLabel>
-                              <FormControl>
-                                 <Input
-                                    placeholder="Enter your full name"
-                                    {...field}
-                                    className="bg-gray-50 border-gray-200 focus-visible:ring-[#FF6B35]"
-                                 />
-                              </FormControl>
-                              <FormMessage />
-                           </FormItem>
-                        )}
-                     />
+                     <div className="grid grid-cols-2 gap-4">
+                        <FormField
+                           control={form.control}
+                           name="firstname"
+                           render={({ field }) => (
+                              <FormItem>
+                                 <FormLabel className="text-gray-700">
+                                    First Name
+                                 </FormLabel>
+                                 <FormControl>
+                                    <Input
+                                       placeholder="Enter first name"
+                                       {...field}
+                                       className="bg-gray-50 border-gray-200 focus-visible:ring-[#FF6B35]"
+                                    />
+                                 </FormControl>
+                                 <FormMessage />
+                              </FormItem>
+                           )}
+                        />
+                        <FormField
+                           control={form.control}
+                           name="lastname"
+                           render={({ field }) => (
+                              <FormItem>
+                                 <FormLabel className="text-gray-700">
+                                    Last Name
+                                 </FormLabel>
+                                 <FormControl>
+                                    <Input
+                                       placeholder="Enter last name"
+                                       {...field}
+                                       className="bg-gray-50 border-gray-200 focus-visible:ring-[#FF6B35]"
+                                    />
+                                 </FormControl>
+                                 <FormMessage />
+                              </FormItem>
+                           )}
+                        />
+                     </div>
                      <FormField
                         control={form.control}
                         name="email"

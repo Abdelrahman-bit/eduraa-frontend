@@ -1,7 +1,8 @@
 import { apiClient } from '@/lib/http';
 
 export const applyForJob = async (values: {
-   name: string;
+   firstname: string;
+   lastname: string;
    email: string;
    phone: string;
 }) => {
