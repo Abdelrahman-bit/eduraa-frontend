@@ -287,11 +287,11 @@ export default function AdminDashboard() {
                            >
                               <div className="flex items-center gap-3">
                                  <div className="w-10 h-10 rounded-full bg-orange-50 text-orange-600 flex items-center justify-center font-bold text-sm shrink-0 uppercase">
-                                    {req.name.charAt(0)}
+                                    {req.firstname?.charAt(0) || '?'}
                                  </div>
                                  <div className="min-w-0">
                                     <h4 className="text-sm font-bold text-gray-900 truncate">
-                                       {req.name}
+                                       {req.firstname} {req.lastname}
                                     </h4>
                                     <p className="text-xs text-gray-500 truncate">
                                        {req.email}

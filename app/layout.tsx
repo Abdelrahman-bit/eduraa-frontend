@@ -11,6 +11,9 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+   metadataBase: new URL(
+      process.env.NEXT_PUBLIC_APP_URL || 'https://eduraa.com'
+   ),
    title: {
       default: 'Eduraa - Online Learning Platform | Expert-Led Courses',
       template: '%s | Eduraa',
