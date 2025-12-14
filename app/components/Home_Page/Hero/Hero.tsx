@@ -2,6 +2,7 @@
 import React from 'react';
 import Button from '../../global/Button/Button';
 import Image from 'next/image';
+import Link from 'next/link';
 import useBearStore from '@/app/store/useStore';
 
 export default function Hero() {
@@ -22,7 +23,9 @@ export default function Hero() {
                </p>
                {!isAuthenticated && (
                   <div className="w-full flex justify-center lg:justify-start">
-                     <Button text="Create Account" type="primary" />
+                     <Link href="/auth/signup">
+                        <Button text="Create Account" type="primary" />
+                     </Link>
                   </div>
                )}
             </div>

@@ -42,7 +42,7 @@ export default function DashboardLayout({
             <div
                className={`
         fixed inset-y-0 left-0 z-50 w-64 bg-[#1D2026] shadow-lg transform transition-transform duration-300 ease-in-out
-        md:translate-x-0 md:static md:shadow-none
+        md:translate-x-0 md:shadow-none
         ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}
       `}
             >
@@ -60,7 +60,7 @@ export default function DashboardLayout({
             </div>
 
             {/* Main Content Area */}
-            <div className="flex-1 flex flex-col min-h-screen w-full transition-all duration-300">
+            <div className="flex-1 flex flex-col min-h-screen w-full transition-all duration-300 md:ml-64">
                {/* Mobile Header Bar */}
                <div className="md:hidden bg-white p-4 border-b flex items-center gap-4 sticky top-0 z-30">
                   <button

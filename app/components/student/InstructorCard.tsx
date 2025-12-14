@@ -29,10 +29,6 @@ const InstructorCard = ({ id, name, title, image }: InstructorProps) => {
             >
                Profile
             </Link>
-
-            <button className="flex-1 bg-[#FFEEE8] text-[#FF6636] py-3 rounded-md font-semibold text-sm hover:bg-[#FF6636] hover:text-white transition-colors duration-300">
-               Message
-            </button>
          </div>
       </div>
    );

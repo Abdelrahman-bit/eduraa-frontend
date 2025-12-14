@@ -49,13 +49,10 @@ export default function SettingsPage() {
             <AccountForm userData={userData} onAvatarUpdate={fetchProfile} />
 
             {/* 2. Chat Settings Section */}
-            <ChatSettings />
 
             {/* 3. Bottom Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-               {/* Notifications Section */}
-               <NotificationSettings />
-
+               <ChatSettings />
                {/* Change Password Section */}
                <PasswordForm />
             </div>

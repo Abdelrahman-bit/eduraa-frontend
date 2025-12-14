@@ -113,7 +113,7 @@ const FilterSidebar = ({
    return (
       <aside
          className={`
-      fixed inset-y-0 left-0 z-20 w-72 bg-white border-r border-gray-200 transform transition-all duration-300 ease-in-out overflow-y-auto
+      fixed inset-y-0 left-0 z-80 w-72 bg-white border-r border-gray-200 transform transition-all duration-300 ease-in-out overflow-y-auto
       lg:relative lg:w-72
       ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       ${isDesktopOpen ? 'lg:block' : 'lg:hidden'}

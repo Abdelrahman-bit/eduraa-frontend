@@ -17,9 +17,14 @@ export default function Footer() {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-12 mb-16">
                {/* Brand Column */}
                <div className="lg:col-span-1 space-y-6">
-                  <div className="flex items-center gap-2 text-white font-bold text-2xl">
-                     <Layers className="text-orange-500 w-8 h-8" />
-                     Eduraa
+                  <div>
+                     <Link
+                        href={`/`}
+                        className="flex items-center gap-2 text-white font-bold text-2xl"
+                     >
+                        <Layers className="text-orange-500 w-8 h-8" />
+                        Eduraa
+                     </Link>
                   </div>
                   <p className="text-sm text-gray-400 leading-relaxed">
                      Aliquam rhoncus ligula est, non pulvinar elit convallis
@@ -47,36 +52,36 @@ export default function Footer() {
                   </h3>
                   <ul className="space-y-2 text-sm text-gray-400">
                      <li>
-                        <a
-                           href="#"
+                        <Link
+                           href={`/category?category=DEVELOPMENT`}
                            className="hover:text-orange-500 transition-colors"
                         >
                            Development
-                        </a>
+                        </Link>
                      </li>
                      <li>
-                        <a
-                           href="#"
+                        <Link
+                           href={`/category?category=FINANCE-&-ACCOUNTING`}
                            className="hover:text-orange-500 transition-colors"
                         >
                            Finance & Accounting
-                        </a>
+                        </Link>
                      </li>
                      <li>
-                        <a
-                           href="#"
+                        <Link
+                           href={`/category?category=DESIGN`}
                            className="hover:text-orange-500 transition-colors"
                         >
                            Design
-                        </a>
+                        </Link>
                      </li>
                      <li>
-                        <a
-                           href="#"
+                        <Link
+                           href={`/category?category=BUSINESS`}
                            className="hover:text-orange-500 transition-colors"
                         >
                            Business
-                        </a>
+                        </Link>
                      </li>
                   </ul>
                </div>
@@ -95,12 +100,12 @@ export default function Footer() {
                         </Link>
                      </li>
                      <li>
-                        <a
-                           href="#"
+                        <Link
+                           href="/become_an_instructor"
                            className="hover:text-orange-500 transition-colors flex items-center gap-1 text-white"
                         >
                            Become Instructor <ArrowRight className="w-3 h-3" />
-                        </a>
+                        </Link>
                      </li>
                      <li>
                         <Link

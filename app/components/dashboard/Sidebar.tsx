@@ -1,7 +1,7 @@
 'use client';
 import { usePathname } from 'next/navigation';
 import Link from 'next/link';
-import { LogOut, GraduationCap } from 'lucide-react';
+import { GraduationCap } from 'lucide-react';
 import { getSidebarItems } from '../dashboard/dashboardData';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -70,14 +70,6 @@ export default function Sidebar({ role, onLinkClick }: SidebarProps) {
                </Link>
             ))}
          </nav>
-
-         {/* Footer of Sidebar */}
-         <div className="p-6 border-t border-gray-800 shrink-0">
-            <button className="flex items-center gap-3 text-sm font-medium hover:text-white transition-colors w-full">
-               <LogOut size={20} />
-               Sign-out
-            </button>
-         </div>
       </aside>
    );
 }

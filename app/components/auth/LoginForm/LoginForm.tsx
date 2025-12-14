@@ -36,6 +36,7 @@ export default function LoginForm() {
       setErrors({});
       if (!validate()) return;
       setSubmitting(true);
+
       try {
          const response = await login({ email, password, remember });
          const { token } = response;
@@ -51,8 +52,9 @@ export default function LoginForm() {
          const userRole = decodedToken.role;
 
          // Initialize auth state in Zustand store before navigation
-         initializeAuth();
+         await initializeAuth();
 
+         // Redirect based on user role
          if (userRole === 'student') {
             router.push('/student/courses');
          } else if (userRole === 'instructor') {
@@ -64,8 +66,22 @@ export default function LoginForm() {
          // Improved error handling with fallback messages
          let errorMessage = 'Login failed. Please try again.';
 
+         // Check for backend error message first
          if (err?.response?.data?.message) {
-            errorMessage = err.response.data.message;
+            const backendMessage = err.response.data.message;
+            // Handle specific backend messages
+            if (
+               backendMessage.toLowerCase().includes('incorrect') ||
+               backendMessage.toLowerCase().includes('invalid')
+            ) {
+               errorMessage = 'Invalid email or password';
+            } else {
+               errorMessage = backendMessage;
+            }
+         } else if (err?.response?.status === 401) {
+            errorMessage = 'Invalid email or password';
+         } else if (err?.response?.status === 404) {
+            errorMessage = 'Account not found';
          } else if (err?.message) {
             errorMessage = err.message;
          }
@@ -173,7 +189,9 @@ export default function LoginForm() {
             </div>
 
             {errors.submit && (
-               <p className="text-sm text-red-500">{errors.submit}</p>
+               <p className="text-sm text-red-500">
+                  {'Invalid email or password'}
+               </p>
             )}
 
             <div className="flex items-center gap-3">

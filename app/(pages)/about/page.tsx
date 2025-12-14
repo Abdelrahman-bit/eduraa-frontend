@@ -1,5 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
+import { Metadata } from 'next';
 import {
    Users,
    FileText,
@@ -17,6 +19,20 @@ import {
    MotionScale,
 } from '../../components/global/Motion/Motion';
 import { BreadcrumbHeader } from '../../components/global/Breadcrumb/Breadcrumb';
+
+export const metadata: Metadata = {
+   title: 'About Us',
+   description:
+      'Learn about Eduraa - a leading online learning platform since 2007. Discover our mission to share knowledge worldwide with 67.1k students, 26k certified instructors, and a 99.9% success rate.',
+   keywords: [
+      'about Eduraa',
+      'online learning platform',
+      'e-learning company',
+      'education mission',
+      'certified instructors',
+      'student success',
+   ],
+};
 
 // --- Types ---
 type Partner = { name: string; src: string };
@@ -241,10 +257,13 @@ export default function AboutPage() {
                         </p>
                      </MotionItem>
                      <MotionItem>
-                        <button className="bg-[#FF5A1F] hover:bg-[#e04f1a] text-white px-8 py-3 rounded-md font-medium transition-colors flex items-center gap-2 group">
-                           Join Our Team
+                        <Link
+                           href="/become_an_instructor"
+                           className="bg-[#FF5A1F] hover:bg-[#e04f1a] text-white px-8 py-3 rounded-md font-medium transition-colors flex items-center gap-2 group"
+                        >
+                           Become Instructor
                            <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                        </button>
+                        </Link>
                      </MotionItem>
                   </MotionContainer>
 

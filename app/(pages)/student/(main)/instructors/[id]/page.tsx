@@ -111,9 +111,9 @@ export default function InstructorProfilePage() {
                </div>
             </div>
 
-            <button className="bg-[#FFEEE8] text-[#FF6636] px-6 py-3 rounded-md font-semibold hover:bg-[#FF6636] hover:text-white transition-colors">
+            {/* <button className="bg-[#FFEEE8] text-[#FF6636] px-6 py-3 rounded-md font-semibold hover:bg-[#FF6636] hover:text-white transition-colors">
                Send Message
-            </button>
+            </button> */}
          </div>
 
          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">

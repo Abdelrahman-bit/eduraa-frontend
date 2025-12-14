@@ -1,76 +1,72 @@
 'use client';
 import React from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import { signUp } from '@/app/services/authService';
 import { Eye, EyeOff } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
+// Zod validation schema
+const signupSchema = z
+   .object({
+      firstName: z.string().min(1, 'First name is required'),
+      lastName: z.string().min(1, 'Last name is required'),
+      email: z.string().email('Enter a valid email address'),
+      password: z
+         .string()
+         .min(6, 'Password must be at least 6 characters')
+         .regex(/[A-Z]/, 'Password must contain an uppercase letter')
+         .regex(/[a-z]/, 'Password must contain a lowercase letter')
+         .regex(/[0-9]/, 'Password must contain a number')
+         .regex(
+            /[!@#$%^&*(),.?":{}|<>]/,
+            'Password must contain a special character'
+         ),
+      confirmPassword: z.string().min(1, 'Please confirm your password'),
+      terms: z.boolean().refine((val) => val === true, {
+         message: 'You must agree to the Terms & Conditions',
+      }),
+   })
+   .refine((data) => data.password === data.confirmPassword, {
+      message: 'Passwords do not match',
+      path: ['confirmPassword'],
+   });
+
+type SignupFormData = z.infer<typeof signupSchema>;
+
 const SignupForm = () => {
    const router = useRouter();
-   const [firstName, setFirstName] = React.useState('');
-   const [lastName, setLastName] = React.useState('');
-   const [email, setEmail] = React.useState('');
-   const [password, setPassword] = React.useState('');
-   const [confirmPassword, setConfirmPassword] = React.useState('');
-   const [termsChecked, setTermsChecked] = React.useState(false);
-
    const [showPassword, setShowPassword] = React.useState(false);
    const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
+   const [submitError, setSubmitError] = React.useState<string>('');
 
-   const [errors, setErrors] = React.useState<{
-      firstName?: string;
-      lastName?: string;
-      email?: string;
-      password?: string;
-      confirmPassword?: string;
-      submit?: string;
-   }>({});
-   const [submitting, setSubmitting] = React.useState(false);
+   const {
+      register,
+      handleSubmit,
+      formState: { errors, isSubmitting },
+   } = useForm<SignupFormData>({
+      resolver: zodResolver(signupSchema),
+      mode: 'onBlur',
+   });
 
-   const togglePasswordVisibility = () => {
-      setShowPassword(!showPassword);
-   };
-
-   const toggleConfirmPasswordVisibility = () => {
-      setShowConfirmPassword(!showConfirmPassword);
-   };
-
-   const validate = () => {
-      const e: any = {};
-      if (!firstName.trim()) e.firstName = 'First name is required.';
-      if (!lastName.trim()) e.lastName = 'Last name is required.';
-      if (!email.trim()) e.email = 'Email is required.';
-      else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
-         e.email = 'Enter a valid email.';
-      if (!password) e.password = 'Password is required.';
-      else if (password.length < 6)
-         e.password = 'Password must be at least 6 characters.';
-      if (!confirmPassword) e.confirmPassword = 'Confirm your password.';
-      else if (confirmPassword !== password)
-         e.confirmPassword = 'Passwords do not match.';
-      if (!termsChecked) e.submit = 'You must agree to the Terms & Conditions.';
-      setErrors(e);
-      return Object.keys(e).length === 0;
-   };
-
-   const handleSubmit = async (ev: React.FormEvent) => {
-      ev.preventDefault();
-      setErrors({});
-      if (!validate()) return;
-
-      setSubmitting(true);
+   const onSubmit = async (data: SignupFormData) => {
+      setSubmitError('');
       try {
          await signUp({
-            firstname: firstName,
-            lastname: lastName,
-            email,
-            password,
-            confirmPassword,
+            firstname: data.firstName,
+            lastname: data.lastName,
+            email: data.email,
+            password: data.password,
+            confirmPassword: data.confirmPassword,
          });
          router.push('/student/courses');
       } catch (error: any) {
-         setErrors({ submit: error.message });
-      } finally {
-         setSubmitting(false);
+         setSubmitError(
+            error?.response?.data?.message ||
+               error?.message ||
+               'Registration failed. Please try again.'
+         );
       }
    };
 
@@ -78,36 +74,48 @@ const SignupForm = () => {
       <div className="w-full max-w-md">
          <h1 className="text-2xl font-bold mb-5">Create your account</h1>
 
-         <form onSubmit={handleSubmit} className="space-y-3">
+         <form onSubmit={handleSubmit(onSubmit)} className="space-y-3">
             {/* Full Name */}
             <div>
                <label className="block text-xs font-medium text-gray-700 mb-1">
                   Full Name
                </label>
                <div className="flex gap-2">
-                  <input
-                     type="text"
-                     placeholder="First name..."
-                     value={firstName}
-                     onChange={(e) => setFirstName(e.target.value)}
-                     className="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  />
-                  <input
-                     type="text"
-                     placeholder="Last name"
-                     value={lastName}
-                     onChange={(e) => setLastName(e.target.value)}
-                     className="flex-1 px-3 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
-                  />
+                  <div className="flex-1">
+                     <input
+                        type="text"
+                        placeholder="First name..."
+                        {...register('firstName')}
+                        className={`w-full px-3 py-1.5 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-orange-500 ${
+                           errors.firstName
+                              ? 'border-red-500'
+                              : 'border-gray-300'
+                        }`}
+                     />
+                     {errors.firstName && (
+                        <p className="text-xs text-red-500 mt-1">
+                           {errors.firstName.message}
+                        </p>
+                     )}
+                  </div>
+                  <div className="flex-1">
+                     <input
+                        type="text"
+                        placeholder="Last name"
+                        {...register('lastName')}
+                        className={`w-full px-3 py-1.5 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-orange-500 ${
+                           errors.lastName
+                              ? 'border-red-500'
+                              : 'border-gray-300'
+                        }`}
+                     />
+                     {errors.lastName && (
+                        <p className="text-xs text-red-500 mt-1">
+                           {errors.lastName.message}
+                        </p>
+                     )}
+                  </div>
                </div>
-               {errors.firstName && (
-                  <p className="text-xs text-red-500 mt-1">
-                     {errors.firstName}
-                  </p>
-               )}
-               {errors.lastName && (
-                  <p className="text-xs text-red-500 mt-1">{errors.lastName}</p>
-               )}
             </div>
 
             {/* Email */}
@@ -118,12 +126,15 @@ const SignupForm = () => {
                <input
                   type="email"
                   placeholder="Email address"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
+                  {...register('email')}
+                  className={`w-full px-3 py-1.5 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-orange-500 ${
+                     errors.email ? 'border-red-500' : 'border-gray-300'
+                  }`}
                />
                {errors.email && (
-                  <p className="text-xs text-red-500 mt-1">{errors.email}</p>
+                  <p className="text-xs text-red-500 mt-1">
+                     {errors.email.message}
+                  </p>
                )}
             </div>
 
@@ -136,18 +147,24 @@ const SignupForm = () => {
                   <input
                      type={showPassword ? 'text' : 'password'}
                      placeholder="Create password"
-                     value={password}
-                     onChange={(e) => setPassword(e.target.value)}
-                     className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
+                     {...register('password')}
+                     className={`w-full px-3 py-1.5 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-orange-500 pr-10 ${
+                        errors.password ? 'border-red-500' : 'border-gray-300'
+                     }`}
                   />
                   <button
                      type="button"
-                     onClick={togglePasswordVisibility}
-                     className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 text-sm"
+                     onClick={() => setShowPassword(!showPassword)}
+                     className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
                   >
-                     {showPassword ? <Eye /> : <EyeOff />}
+                     {showPassword ? <Eye size={18} /> : <EyeOff size={18} />}
                   </button>
                </div>
+               {errors.password && (
+                  <p className="text-xs text-red-500 mt-1">
+                     {errors.password.message}
+                  </p>
+               )}
             </div>
 
             {/* Confirm Password */}
@@ -159,50 +176,73 @@ const SignupForm = () => {
                   <input
                      type={showConfirmPassword ? 'text' : 'password'}
                      placeholder="Confirm password"
-                     value={confirmPassword}
-                     onChange={(e) => setConfirmPassword(e.target.value)}
-                     className="w-full px-3 py-1.5 text-sm border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-orange-500"
+                     {...register('confirmPassword')}
+                     className={`w-full px-3 py-1.5 text-sm border rounded focus:outline-none focus:ring-2 focus:ring-orange-500 pr-10 ${
+                        errors.confirmPassword
+                           ? 'border-red-500'
+                           : 'border-gray-300'
+                     }`}
                   />
                   <button
                      type="button"
-                     onClick={toggleConfirmPasswordVisibility}
-                     className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 text-sm"
+                     onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                     }
+                     className="absolute right-2 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
                   >
-                     {showConfirmPassword ? <Eye /> : <EyeOff />}
+                     {showConfirmPassword ? (
+                        <Eye size={18} />
+                     ) : (
+                        <EyeOff size={18} />
+                     )}
                   </button>
                </div>
+               {errors.confirmPassword && (
+                  <p className="text-xs text-red-500 mt-1">
+                     {errors.confirmPassword.message}
+                  </p>
+               )}
             </div>
 
             {/* Terms & Conditions */}
-            <div className="flex items-start gap-2 text-xs text-gray-600">
-               <input
-                  type="checkbox"
-                  id="terms"
-                  checked={termsChecked}
-                  onChange={(e) => setTermsChecked(e.target.checked)}
-                  className="mt-0.5 w-3 h-3 accent-orange-500"
-               />
-               <label htmlFor="terms" className="text-xs">
-                  I agree with all of your{' '}
-                  <a href="#" className="text-orange-500 hover:underline">
-                     Terms & Conditions
-                  </a>
-               </label>
+            <div>
+               <div className="flex items-start gap-2 text-xs text-gray-600">
+                  <input
+                     type="checkbox"
+                     id="terms"
+                     {...register('terms')}
+                     className="mt-0.5 w-3 h-3 accent-orange-500"
+                  />
+                  <label htmlFor="terms" className="text-xs">
+                     I agree with all of your{' '}
+                     <a href="#" className="text-orange-500 hover:underline">
+                        Terms & Conditions
+                     </a>
+                  </label>
+               </div>
+               {errors.terms && (
+                  <p className="text-xs text-red-500 mt-1">
+                     {errors.terms.message}
+                  </p>
+               )}
             </div>
+
+            {/* Submit Error */}
+            {submitError && (
+               <div className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded text-xs">
+                  {submitError}
+               </div>
+            )}
 
             {/* Create Account Button */}
             <button
                type="submit"
-               disabled={submitting}
-               className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 text-sm rounded transition-colors flex items-center justify-center gap-2 disabled:opacity-60"
+               disabled={isSubmitting}
+               className="w-full bg-orange-500 hover:bg-orange-600 text-white font-semibold py-2 text-sm rounded transition-colors flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed"
             >
-               {submitting ? 'Creating...' : 'Create Account'}
+               {isSubmitting ? 'Creating...' : 'Create Account'}
                <span>→</span>
             </button>
-
-            {errors.submit && (
-               <p className="text-xs text-red-500">{errors.submit}</p>
-            )}
 
             {/* Social Sign Up */}
             <div className="relative my-3">

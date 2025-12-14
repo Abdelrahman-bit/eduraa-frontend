@@ -1,6 +1,11 @@
 import Image from 'next/image';
 import SignupForm from '../../../components/auth/SignupForm/SignupForm';
 import { MotionImageRight } from '@/app/components/global/Motion/Motion';
+import type { Metadata } from 'next';
+
+export const metadata: Metadata = {
+   title: 'Create Account',
+};
 
 const SignUp = () => {
    return (

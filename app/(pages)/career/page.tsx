@@ -36,7 +36,7 @@ export default function CareerPage() {
       <main className="min-h-screen bg-gray-50 text-gray-800">
          <BreadcrumbHeader title="Career" activePage="Career" />
          {/* HERO */}
-         <section className="max-w-7xl mx-auto px-6 py-16 lg:py-24">
+         <section className="max-w-7xl mx-auto px-6 pt-16 lg:pt-24">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
                <div className="lg:col-span-6">
                   <h1 className="text-3xl lg:text-4xl font-extrabold leading-tight">
@@ -47,13 +47,10 @@ export default function CareerPage() {
                      et. Pellentesque bibendum orci felis, sit amet efficitur
                      felis lacinia ac. Mauris gravida justo ac nunc consectetur.
                   </p>
-                  <button className="mt-8 inline-block bg-orange-500 hover:bg-orange-600 text-white px-5 py-3 rounded">
-                     View Open Positions
-                  </button>
                </div>
 
                <div className="lg:col-span-6 flex justify-center lg:justify-end">
-                  <div className="w-full max-w-sm">
+                  <div className="w-50 md:w-full max-w-sm">
                      <Image
                         src="/career/career_hero.webp"
                         alt="hero"
@@ -67,8 +64,8 @@ export default function CareerPage() {
          </section>
 
          {/* WHY JOIN */}
-         <section className="bg-white py-12">
-            <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+         <section className="py-10 bg-white md:py-40">
+            <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
                <div className="lg:col-span-6 ">
                   <div className="bg-gray-100 rounded overflow-hidden ">
                      <Image
@@ -124,7 +121,7 @@ export default function CareerPage() {
          </section>
 
          {/* PERKS & BENEFITS */}
-         <section className="max-w-7xl mx-auto px-6 py-12">
+         <section className="max-w-7xl mx-auto px-6 py-20">
             <h3 className="text-center text-2xl font-semibold mb-8">
                Our Perks & Benefits
             </h3>
@@ -175,7 +172,7 @@ export default function CareerPage() {
          </section>
 
          {/* GALLERY / ABOUT */}
-         <section className="bg-white py-12">
+         <section className="bg-white py-20">
             <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
                <div className="lg:col-span-5">
                   <p className="text-sm text-orange-500 font-semibold">
@@ -205,7 +202,7 @@ export default function CareerPage() {
          </section>
 
          {/* COMPANIES / TRUST */}
-         <section className=" mx-auto px-4 sm:px-6 lg:px-8 py-12">
+         <section className="max-w-7xl mx-auto mx-auto px-4 sm:px-6 lg:px-8 py-12">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
                <MotionContainer className="lg:col-span-4 space-y-2">
                   <MotionItem>
