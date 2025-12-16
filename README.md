@@ -14,6 +14,7 @@
   <a href="#-features">Features</a> •
   <a href="#-screenshots">Screenshots</a> •
   <a href="#-getting-started">Getting Started</a>
+  <a href="https://eduraa-iti.vercel.app/">Live demo</a>
 </p>
 
 <p align="center">
@@ -137,108 +138,6 @@
 
 ---
 
-## 📸 Screenshots
-
-> **Add your screenshots below to showcase the platform!**
-
-### 🏠 Landing Page
-<!-- Add your screenshot here -->
-```
-📷 [Screenshot: Hero section with call-to-action]
-```
-<p align="center">
-  <em>Paste your landing page screenshot here</em>
-</p>
-
----
-
-### 📚 Course Catalog
-<!-- Add your screenshot here -->
-```
-📷 [Screenshot: Course listing with filters]
-```
-<p align="center">
-  <em>Paste your course catalog screenshot here</em>
-</p>
-
----
-
-### 📖 Course Details
-<!-- Add your screenshot here -->
-```
-📷 [Screenshot: Course details with curriculum]
-```
-<p align="center">
-  <em>Paste your course details screenshot here</em>
-</p>
-
----
-
-### 🎥 Course Player
-<!-- Add your screenshot here -->
-```
-📷 [Screenshot: Video player with curriculum sidebar]
-```
-<p align="center">
-  <em>Paste your course player screenshot here</em>
-</p>
-
----
-
-### 👨‍🎓 Student Dashboard
-<!-- Add your screenshot here -->
-```
-📷 [Screenshot: Student dashboard with enrolled courses]
-```
-<p align="center">
-  <em>Paste your student dashboard screenshot here</em>
-</p>
-
----
-
-### 👨‍🏫 Instructor Dashboard
-<!-- Add your screenshot here -->
-```
-📷 [Screenshot: Instructor dashboard with analytics]
-```
-<p align="center">
-  <em>Paste your instructor dashboard screenshot here</em>
-</p>
-
----
-
-### 👑 Admin Dashboard
-<!-- Add your screenshot here -->
-```
-📷 [Screenshot: Admin dashboard with pending approvals]
-```
-<p align="center">
-  <em>Paste your admin dashboard screenshot here</em>
-</p>
-
----
-
-### 🤖 AI Chatbot
-<!-- Add your screenshot here -->
-```
-📷 [Screenshot: AI chatbot in action]
-```
-<p align="center">
-  <em>Paste your AI chatbot screenshot here</em>
-</p>
-
----
-
-### 📱 Mobile Responsive
-<!-- Add your screenshot here -->
-```
-📷 [Screenshot: Mobile responsive design]
-```
-<p align="center">
-  <em>Paste your mobile responsive screenshot here</em>
-</p>
-
----
 
 ## 🏗 Project Structure
 
