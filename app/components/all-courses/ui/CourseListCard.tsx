@@ -3,9 +3,11 @@ import { useState } from 'react';
 import { Star, Clock, Loader2 } from 'lucide-react';
 import { IoMdHeart, IoMdHeartEmpty } from 'react-icons/io';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Course } from '@/app/services/courses';
 import useBearStore from '@/app/store/useStore';
 import toast from 'react-hot-toast';
+import { getOptimizedCloudinaryUrl, CloudinaryPresets } from '@/lib/cloudinary';
 
 const getCategoryColor = (category: string) => {
    const colors: Record<string, string> = {
@@ -76,10 +78,16 @@ const CourseListCard = ({ course }: { course: Course }) => {
       >
          {/* Image Container */}
          <div className="relative aspect-16/10 overflow-hidden bg-gray-100">
-            <img
-               src={course.advancedInfo.thumbnailUrl}
+            <Image
+               src={getOptimizedCloudinaryUrl(
+                  course.advancedInfo.thumbnailUrl,
+                  CloudinaryPresets.medium
+               )}
                alt={course.basicInfo.title}
-               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+               fill
+               loading="lazy"
+               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, (max-width: 1280px) 33vw, 20vw"
+               className="object-cover group-hover:scale-105 transition-transform duration-500"
             />
             {isStudent && !isEnrolled && (
                <button
@@ -120,10 +128,16 @@ const CourseListCard = ({ course }: { course: Course }) => {
                <div className="w-6 h-6 rounded-full bg-gray-200 overflow-hidden relative">
                   {typeof course.instructor === 'object' &&
                   course.instructor?.avatar ? (
-                     <img
-                        src={course.instructor.avatar}
+                     <Image
+                        src={getOptimizedCloudinaryUrl(
+                           course.instructor.avatar,
+                           CloudinaryPresets.avatar
+                        )}
                         alt="Instructor"
-                        className="w-full h-full object-cover"
+                        fill
+                        loading="lazy"
+                        sizes="24px"
+                        className="object-cover"
                      />
                   ) : (
                      <div className="w-full h-full bg-gray-300 flex items-center justify-center text-[10px] text-gray-500">

@@ -58,3 +58,51 @@ export const getCloudinaryUrl = (
       : '';
    return `${baseUrl}${transformations ? `/${transformations}` : ''}/${publicId}`;
 };
+
+// Utility function to apply Cloudinary transformations to existing URLs
+export function getOptimizedCloudinaryUrl(url: string, width?: number): string {
+   // Check if it's a Cloudinary URL
+   if (!url || !url.includes('cloudinary.com')) {
+      return url;
+   }
+
+   // If it's already transformed, return as is
+   if (url.includes('/w_') || url.includes('/f_auto')) {
+      return url;
+   }
+
+   try {
+      // Parse the Cloudinary URL
+      // Format: https://res.cloudinary.com/{cloud_name}/image/upload/v{version}/{path}
+      const urlParts = url.split('/upload/');
+      if (urlParts.length !== 2) {
+         return url;
+      }
+
+      const baseUrl = urlParts[0];
+      const pathWithVersion = urlParts[1];
+
+      // Determine optimal width based on use case
+      const targetWidth = width || 800; // Default to 800px
+
+      // Apply Cloudinary transformations
+      // w_800,c_limit: Limit width to 800px, maintain aspect ratio
+      // f_auto: Auto format (WebP, AVIF when supported)
+      // q_auto: Auto quality based on content
+      const transformations = `w_${targetWidth},c_limit,f_auto,q_auto:good`;
+
+      return `${baseUrl}/upload/${transformations}/${pathWithVersion}`;
+   } catch (error) {
+      console.error('Error transforming Cloudinary URL:', error);
+      return url;
+   }
+}
+
+// Helper for different image sizes
+export const CloudinaryPresets = {
+   thumbnail: 200,
+   small: 400,
+   medium: 800,
+   large: 1200,
+   avatar: 100,
+} as const;

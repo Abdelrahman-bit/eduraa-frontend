@@ -9,13 +9,12 @@ import CourseCardSkeleton from '@/app/components/all-courses/ui/CourseCardSkelet
 export default function BestSellingSection() {
    const { data, isLoading } = useQuery({
       queryKey: ['best-selling-courses'],
-      queryFn: () => fetchPublishedCourses({ limit: 20 }), // Fetch enough to sort
+      queryFn: () => fetchPublishedCourses({ limit: 5 }),
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
    });
 
-   // Sort by price desc (just as a proxy for "best selling" or "premium")
-   const courses = (data?.data || [])
-      .sort((a, b) => b.price.amount - a.price.amount)
-      .slice(0, 5);
+   const courses = data?.data || [];
 
    // ... inside component ...
 

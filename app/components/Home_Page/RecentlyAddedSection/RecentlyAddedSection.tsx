@@ -11,18 +11,12 @@ import CourseCardSkeleton from '@/app/components/all-courses/ui/CourseCardSkelet
 export default function RecentlyAddedSection() {
    const { data, isLoading } = useQuery({
       queryKey: ['recent-courses'],
-      queryFn: () => fetchPublishedCourses({ limit: 12 }), // Fetch slightly more to sort
+      queryFn: () => fetchPublishedCourses({ limit: 4 }),
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
    });
 
-   // Sort by createdAt desc and take 4
-   const courses = (data?.data || [])
-      .sort((a, b) => {
-         return (
-            new Date(b.createdAt || 0).getTime() -
-            new Date(a.createdAt || 0).getTime()
-         );
-      })
-      .slice(0, 4);
+   const courses = data?.data || [];
 
    // ... inside component ...
 

@@ -38,6 +38,7 @@ export default function Hero() {
                   height={500}
                   src="/hero.jpg"
                   alt="hero"
+                  priority
                   className=" w-full h-auto"
                />
             </div>

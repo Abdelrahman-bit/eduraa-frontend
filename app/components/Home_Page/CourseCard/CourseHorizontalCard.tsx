@@ -5,6 +5,7 @@ import { FiBarChart } from 'react-icons/fi';
 import { CiClock2 } from 'react-icons/ci';
 import Link from 'next/link';
 import { Course } from '@/app/services/courses';
+import { getOptimizedCloudinaryUrl, CloudinaryPresets } from '@/lib/cloudinary';
 
 interface CourseHorizontalCardProps {
    course: Course;
@@ -29,11 +30,15 @@ export default function CourseHorizontalCard({
          >
             <div className="relative w-full aspect-[4/3] md:w-[240px] md:aspect-auto shrink-0 bg-gray-100">
                <Image
-                  src={advancedInfo.thumbnailUrl || '/course.png'}
+                  src={getOptimizedCloudinaryUrl(
+                     advancedInfo.thumbnailUrl || '/course.png',
+                     CloudinaryPresets.medium
+                  )}
                   alt={basicInfo.title}
                   fill
+                  loading="lazy"
                   className="object-cover"
-                  sizes="(max-width: 768px) 100vw, 33vw"
+                  sizes="(max-width: 768px) 100vw, 240px"
                />
             </div>
 
@@ -67,9 +72,14 @@ export default function CourseHorizontalCard({
                   <div className="relative w-6 h-6 rounded-full overflow-hidden bg-gray-200">
                      {instructorAvatar ? (
                         <Image
-                           src={instructorAvatar}
+                           src={getOptimizedCloudinaryUrl(
+                              instructorAvatar,
+                              CloudinaryPresets.avatar
+                           )}
                            alt={instructorName}
                            fill
+                           loading="lazy"
+                           sizes="24px"
                            className="object-cover"
                         />
                      ) : (
