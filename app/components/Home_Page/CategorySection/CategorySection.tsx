@@ -1,118 +1,65 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
 import CategoryCard from './CategoryCard';
-
-import {
-   AiOutlineCalculator,
-   AiOutlineCode,
-   AiOutlineDollarCircle,
-   AiOutlineBarChart,
-} from 'react-icons/ai';
-import { FaHistory } from 'react-icons/fa';
-import { GiMicroscope } from 'react-icons/gi';
-import { MdPalette } from 'react-icons/md';
-
-const categoriesData = [
-   {
-      icon: <AiOutlineCalculator size={30} />,
-      iconColor: '#6050E7',
-      backgroundColor: '#EBEBFF',
-      title: 'Mathematics',
-      courseCount: 365,
-      slug: 'MATHEMATICS',
-   },
-   {
-      icon: <GiMicroscope size={30} />,
-      iconColor: '#28A745',
-      backgroundColor: '#E1F7E3',
-      title: 'Science & Biology',
-      courseCount: 452,
-      slug: 'SCIENCE_BIOLOGY',
-   },
-   {
-      icon: <FaHistory size={30} />,
-      iconColor: '#FF8A00',
-      backgroundColor: '#FFF2E5',
-      title: 'History',
-      courseCount: 952,
-      slug: 'HISTORY',
-   },
-   {
-      icon: <AiOutlineCode size={30} />,
-      iconColor: '#00BCD4',
-      backgroundColor: '#E0FFFF',
-      title: 'Programming',
-      courseCount: 968,
-      slug: 'PROGRAMMING',
-   },
-   {
-      icon: <MdPalette size={30} />,
-      iconColor: '#E91E63',
-      backgroundColor: '#FCE4EC',
-      title: 'Graphic Design',
-      courseCount: 780,
-      slug: 'GRAPHIC_DESIGN',
-   },
-   {
-      icon: <AiOutlineDollarCircle size={30} />,
-      iconColor: '#4CAF50',
-      backgroundColor: '#E8F5E9',
-      title: 'Finance & Accounting',
-      courseCount: 610,
-      slug: 'FINANCE_ACCOUNTING',
-   },
-   {
-      icon: <AiOutlineBarChart size={30} />,
-      iconColor: '#795548',
-      backgroundColor: '#F3E5F5',
-      title: 'Marketing',
-      courseCount: 890,
-      slug: 'MARKETING',
-   },
-   {
-      icon: <AiOutlineCalculator size={30} />,
-      iconColor: '#007BFF',
-      backgroundColor: '#E6F2FF',
-      title: 'Statistics',
-      courseCount: 320,
-      slug: 'STATISTICS',
-   },
-   {
-      icon: <GiMicroscope size={30} />,
-      iconColor: '#FF6B00',
-      backgroundColor: '#FFF2E5',
-      title: 'Chemistry',
-      courseCount: 210,
-      slug: 'CHEMISTRY',
-   },
-];
+import { useQuery } from '@tanstack/react-query';
+import { fetchCategories } from '@/app/services/categories';
+import { Loader2 } from 'lucide-react';
 
 export default function CategorySection() {
+   const {
+      data: categories,
+      isLoading,
+      isError,
+   } = useQuery({
+      queryKey: ['public-categories'],
+      queryFn: fetchCategories,
+      staleTime: 30 * 60 * 1000, // 30 minutes
+      gcTime: 60 * 60 * 1000, // 1 hour
+   });
+
+   if (isError) {
+      return null; // Hide section on error
+   }
+
    return (
-      <section className="py-20">
-         <div className="section-boundary-lg mx-auto flex flex-col gap-10">
-            <h2 className="section-header text-center text-3xl font-bold text-gray-800">
-               Browse top category
+      <section className="py-12 sm:py-16 md:py-20">
+         <div className="section-boundary-lg mx-auto flex flex-col gap-8 sm:gap-10 px-4">
+            <h2 className="section-header text-center text-2xl sm:text-3xl font-bold text-gray-800">
+               Browse Top Categories
             </h2>
 
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3">
-               {categoriesData.map((category, index) => (
-                  <Link
-                     key={index}
-                     href={`/category?category=${category.slug}`}
-                     passHref
-                     className="block"
-                  >
-                     <CategoryCard
-                        icon={category.icon}
-                        iconColor={category.iconColor}
-                        backgroundColor={category.backgroundColor}
-                        title={category.title}
-                        courseCount={category.courseCount}
-                     />
-                  </Link>
-               ))}
-            </div>
+            {isLoading ? (
+               <div className="flex justify-center items-center py-12">
+                  <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
+               </div>
+            ) : (
+               <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
+                  {categories?.map((category) => (
+                     <Link
+                        key={category._id}
+                        href={`/all-courses?category=${category.slug}`}
+                        passHref
+                        className="block"
+                     >
+                        <CategoryCard
+                           icon={category.icon}
+                           iconColor={category.iconColor}
+                           backgroundColor={category.backgroundColor}
+                           title={category.name}
+                           courseCount={category.courseCount}
+                        />
+                     </Link>
+                  ))}
+               </div>
+            )}
+
+            {!isLoading && categories?.length === 0 && (
+               <p className="text-center text-gray-500 py-12">
+                  No categories available at the moment.
+               </p>
+            )}
          </div>
       </section>
    );

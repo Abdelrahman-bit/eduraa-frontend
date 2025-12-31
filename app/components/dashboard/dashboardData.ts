@@ -13,6 +13,7 @@ import {
    Building,
    CalendarCheck,
    LogOut,
+   Folders,
 } from 'lucide-react';
 
 export const getSidebarItems = (
@@ -79,6 +80,11 @@ export const getSidebarItems = (
                label: 'Dashboard',
                icon: LayoutDashboard,
                href: '/dashboard/admin',
+            },
+            {
+               label: 'Categories',
+               icon: Folders,
+               href: '/dashboard/admin/categories',
             },
             {
                label: 'Instructors',

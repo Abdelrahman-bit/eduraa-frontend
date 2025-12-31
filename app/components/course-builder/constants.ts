@@ -20,10 +20,5 @@ export const languages = [
    { label: 'German', value: 'German' },
 ];
 
-export const categories = [
-   { label: 'Design', value: 'Design' },
-   { label: 'Development', value: 'Development' },
-   { label: 'Marketing', value: 'Marketing' },
-   { label: 'Business', value: 'Business' },
-   { label: 'Lifestyle', value: 'Lifestyle' },
-];
+// Categories are now fetched dynamically from the API
+// See BasicInfoForm.tsx for implementation

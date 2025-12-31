@@ -1,43 +1,7 @@
 // data.js
 
-export const CATEGORIES = [
-   {
-      name: 'Development',
-      subcategories: [
-         { name: 'Web Development', count: 574 },
-         { name: 'Mobile Development', count: 1345 },
-         { name: 'Backend', count: 317 },
-         { name: 'AI', count: 566 },
-      ],
-   },
-   {
-      name: 'Design',
-      subcategories: [
-         { name: 'Graphic Design', count: 892 },
-         { name: 'UI/UX Design', count: 1203 },
-         { name: '3D Design', count: 456 },
-         { name: 'Motion Graphics', count: 678 },
-      ],
-   },
-   {
-      name: 'Business',
-      subcategories: [
-         { name: 'Entrepreneurship', count: 543 },
-         { name: 'Management', count: 789 },
-         { name: 'Sales', count: 432 },
-         { name: 'Strategy', count: 321 },
-      ],
-   },
-   {
-      name: 'Marketing',
-      subcategories: [
-         { name: 'Digital Marketing', count: 987 },
-         { name: 'Social Media', count: 654 },
-         { name: 'SEO', count: 432 },
-         { name: 'Content Marketing', count: 345 },
-      ],
-   },
-];
+// Categories are now fetched dynamically from the API
+// See all-courses/page.tsx for implementation
 
 export const TOOLS = [
    { name: 'HTML 5', count: 1345 },
