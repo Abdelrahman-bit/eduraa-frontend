@@ -1,7 +1,7 @@
 // components/FilterSidebar.jsx
 import { useState } from 'react';
 import { ChevronDown, ChevronUp, ChevronRight, Star } from 'lucide-react';
-import { CATEGORIES, TOOLS, RATINGS, LEVELS } from '../data';
+import { TOOLS, RATINGS, LEVELS } from '../data';
 
 const Checkbox = ({ label, count, checked, onChange }) => (
    <div
@@ -58,7 +58,7 @@ const FilterSidebar = ({
    setSelectedRatings,
    selectedLevels,
    setSelectedLevels,
-   categories = CATEGORIES,
+   categories = [],
    tools = TOOLS,
    ratings = RATINGS,
    levels = LEVELS,
@@ -189,9 +189,9 @@ const FilterSidebar = ({
                                     label={sub.name}
                                     count={sub.count}
                                     checked={selectedCategories.includes(
-                                       sub.name
+                                       sub.slug
                                     )}
-                                    onChange={() => toggleCategory(sub.name)}
+                                    onChange={() => toggleCategory(sub.slug)}
                                  />
                               ))}
                            </div>

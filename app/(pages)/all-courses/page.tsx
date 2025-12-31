@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useSearchParams } from 'next/navigation';
 import {
    Search,
    Filter,
@@ -11,16 +12,12 @@ import {
    ChevronLeft,
 } from 'lucide-react';
 import { fetchPublishedCourses } from '@/app/services/courses';
+import { fetchCategories } from '@/app/services/categories';
 import CourseListCard from '@/app/components/all-courses/ui/CourseListCard';
 import CourseCardSkeleton from '@/app/components/all-courses/ui/CourseCardSkeleton';
 import FilterSidebar from '@/app/components/all-courses/ui/FilterSidebar';
 import Link from 'next/link';
-import {
-   CATEGORIES,
-   TOOLS,
-   RATINGS,
-   LEVELS,
-} from '@/app/components/all-courses/data';
+import { TOOLS, RATINGS, LEVELS } from '@/app/components/all-courses/data';
 
 // Helper to calculate counts
 const calculateCounts = (courses: any[]) => {
@@ -33,9 +30,9 @@ const calculateCounts = (courses: any[]) => {
    };
 
    courses.forEach((course) => {
-      // Category & Subcategory
-      const cat = course.basicInfo.category;
-      const sub = course.basicInfo.subCategory;
+      // Category & Subcategory (normalize to lowercase for matching)
+      const cat = course.basicInfo.category?.toLowerCase() || '';
+      const sub = course.basicInfo.subCategory?.toLowerCase() || '';
       if (cat) counts.categories[cat] = (counts.categories[cat] || 0) + 1;
       if (sub) counts.subcategories[sub] = (counts.subcategories[sub] || 0) + 1;
 
@@ -57,6 +54,7 @@ const calculateCounts = (courses: any[]) => {
 };
 
 const App = () => {
+   const searchParams = useSearchParams();
    const [isMobileFiltersOpen, setIsMobileFiltersOpen] = useState(false);
    const [isDesktopFiltersOpen, setIsDesktopFiltersOpen] = useState(true);
    const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
@@ -70,7 +68,23 @@ const App = () => {
    >('trending');
    const [showSortMenu, setShowSortMenu] = useState(false);
 
+   // Initialize category filter from URL parameter
+   useEffect(() => {
+      const categoryFromUrl = searchParams.get('category');
+      if (categoryFromUrl && selectedCategories.length === 0) {
+         setSelectedCategories([categoryFromUrl]);
+      }
+   }, [searchParams]);
+
    const ITEMS_PER_PAGE = 12;
+
+   // Fetch categories from API
+   const { data: categoriesData, isLoading: categoriesLoading } = useQuery({
+      queryKey: ['public-categories'],
+      queryFn: fetchCategories,
+   });
+
+   const apiCategories = categoriesData || [];
 
    // Fetch all courses with filters (Client-side pagination requires fetching all)
    const { data, isLoading, isError, error } = useQuery({
@@ -116,9 +130,13 @@ const App = () => {
          }
       }
 
-      // Category filter (client-side backup)
+      // Category filter (client-side backup - case insensitive)
       if (selectedCategories.length > 0) {
-         if (!selectedCategories.includes(course.basicInfo.category)) {
+         const courseCategory = course.basicInfo.category?.toLowerCase() || '';
+         const hasMatch = selectedCategories.some(
+            (cat) => cat.toLowerCase() === courseCategory
+         );
+         if (!hasMatch) {
             return false;
          }
       }
@@ -208,17 +226,18 @@ const App = () => {
    // Calculate dynamic filter data
    const counts = calculateCounts(allCourses);
 
-   // Map data with dynamic counts
-   const categoriesData = CATEGORIES.map((cat) => ({
-      ...cat,
-      // Sum subcategory counts for main category if desired, or use API count if available.
-      // For now, let's keep the main category structure but update subcategories.
-      subcategories: cat.subcategories?.map((sub) => ({
-         ...sub,
-         count: counts.subcategories[sub.name] || 0,
-         // Note: counts.categories[cat.name] could be used for the parent, but the UI might sum children.
-         // checking FilterSidebar implementation... it uses sub.count
-      })),
+   // Map categories from API with dynamic counts
+   const categories = apiCategories.map((cat) => ({
+      name: cat.name,
+      count: counts.categories[cat.slug] || 0,
+      slug: cat.slug,
+      subcategories: [
+         {
+            name: cat.name,
+            count: counts.categories[cat.slug] || 0,
+            slug: cat.slug,
+         },
+      ],
    }));
 
    const toolsData = TOOLS.map((tool) => ({
@@ -233,7 +252,7 @@ const App = () => {
 
    const ratingsData = RATINGS.map((rate) => ({
       ...rate,
-      count: 0, // No rating data in API
+      count: 0, // No rating data in API yet
    }));
 
    return (
@@ -451,7 +470,7 @@ const App = () => {
                selectedLevels={selectedLevels}
                setSelectedLevels={setSelectedLevels}
                // Dynamic Data
-               categories={categoriesData}
+               categories={categories}
                tools={toolsData}
                ratings={ratingsData}
                levels={levelsData}

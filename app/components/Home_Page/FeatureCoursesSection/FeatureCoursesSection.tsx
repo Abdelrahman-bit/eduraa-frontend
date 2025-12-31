@@ -10,6 +10,8 @@ export default function FeatureCoursesSection() {
    const { data, isLoading, isError } = useQuery({
       queryKey: ['featured-courses'],
       queryFn: () => fetchPublishedCourses({ limit: 4 }),
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000, // 10 minutes (formerly cacheTime)
    });
 
    const courses = data?.data || [];

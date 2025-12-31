@@ -1,7 +1,7 @@
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import toast from 'react-hot-toast';
@@ -19,12 +19,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import {
-   categories,
-   courseLevels,
-   durationUnits,
-   languages,
-} from '../constants';
+import { courseLevels, durationUnits, languages } from '../constants';
+import { fetchCategories } from '@/app/services/categories';
 import { courseBasicInfoSchema, type CourseBasicInfoSchema } from '../schemas';
 import {
    createCourseDraft,
@@ -40,6 +36,12 @@ export function BasicInfoForm() {
       updateBasicInfo,
       setIsSaving,
    } = useCourseBuilderStore();
+
+   // Fetch categories from API
+   const { data: categories, isLoading: categoriesLoading } = useQuery({
+      queryKey: ['public-categories'],
+      queryFn: fetchCategories,
+   });
 
    const form = useForm<CourseBasicInfoSchema>({
       resolver: zodResolver(courseBasicInfoSchema),
@@ -66,7 +68,6 @@ export function BasicInfoForm() {
       },
       onError: (error: Error) => {
          toast.error(error.message);
-         console.log('Error saving basic info:', error);
       },
       onSettled: () => setIsSaving(false),
    });
@@ -131,15 +132,20 @@ export function BasicInfoForm() {
                            <FormControl>
                               <select
                                  className="border-input focus-visible:ring-ring/50 rounded-md border bg-background px-3 py-2 text-sm focus-visible:ring-[3px]"
+                                 disabled={categoriesLoading}
                                  {...field}
                               >
-                                 <option value="">Select...</option>
-                                 {categories.map((category) => (
+                                 <option value="">
+                                    {categoriesLoading
+                                       ? 'Loading categories...'
+                                       : 'Select a category...'}
+                                 </option>
+                                 {categories?.map((category) => (
                                     <option
-                                       key={category.value}
-                                       value={category.value}
+                                       key={category._id}
+                                       value={category.slug}
                                     >
-                                       {category.label}
+                                       {category.name}
                                     </option>
                                  ))}
                               </select>
