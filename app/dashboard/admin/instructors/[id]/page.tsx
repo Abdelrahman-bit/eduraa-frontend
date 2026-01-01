@@ -138,8 +138,9 @@ export default function InstructorProfilePage() {
                      <p className="text-sm font-medium text-gray-500">
                         Total Students
                      </p>
-                     {/* Mock data for now as specific student count per instructor might need aggregation */}
-                     <h3 className="text-2xl font-bold text-gray-900">--</h3>
+                     <h3 className="text-2xl font-bold text-gray-900">
+                        {instructor.totalStudents ?? '--'}
+                     </h3>
                   </div>
                </div>
             </div>
@@ -153,7 +154,11 @@ export default function InstructorProfilePage() {
                      <p className="text-sm font-medium text-gray-500">
                         Average Rating
                      </p>
-                     <h3 className="text-2xl font-bold text-gray-900">4.8</h3>
+                     <h3 className="text-2xl font-bold text-gray-900">
+                        {instructor.averageRating
+                           ? instructor.averageRating.toFixed(1)
+                           : 'N/A'}
+                     </h3>
                   </div>
                </div>
             </div>

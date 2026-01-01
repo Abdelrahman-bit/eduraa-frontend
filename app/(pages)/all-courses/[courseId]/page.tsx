@@ -35,6 +35,7 @@ import {
    getEnrollmentRequestStatus,
    redeemAccessCode,
 } from '@/app/services/courses';
+import { getCourseRatingStats } from '@/app/services/ratingService';
 import CourseDetailsSkeleton from '@/app/components/all-courses/ui/CourseDetailsSkeleton';
 import CourseListCard from '@/app/components/all-courses/ui/CourseListCard';
 import useBearStore from '@/app/store/useStore';
@@ -116,6 +117,14 @@ export default function CourseDetailsPage({
    });
 
    const requestStatus = requestStatusData?.data?.requestStatus;
+
+   // Fetch course rating stats
+   const { data: ratingStats } = useQuery({
+      queryKey: ['courseRatingStats', courseId],
+      queryFn: () => getCourseRatingStats(courseId),
+      enabled: !!courseId,
+      staleTime: 5 * 60 * 1000,
+   });
 
    // Update isEnrolled state when enrollment status changes
    useEffect(() => {
@@ -694,15 +703,22 @@ export default function CourseDetailsPage({
                         {[1, 2, 3, 4, 5].map((star) => (
                            <Star
                               key={star}
-                              className="w-5 h-5 fill-orange-500 text-orange-500"
+                              className={`w-5 h-5 ${
+                                 star <=
+                                 Math.round(ratingStats?.averageRating || 0)
+                                    ? 'fill-orange-500 text-orange-500'
+                                    : 'fill-gray-200 text-gray-200'
+                              }`}
                            />
                         ))}
                      </div>
                      <span className="text-lg font-bold text-gray-900">
-                        5.0
+                        {ratingStats?.averageRating
+                           ? ratingStats.averageRating.toFixed(1)
+                           : 'N/A'}
                      </span>
                      <span className="text-sm text-gray-500">
-                        (1,234 reviews)
+                        ({ratingStats?.totalRatings || 0} reviews)
                      </span>
                   </div>
 

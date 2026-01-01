@@ -29,20 +29,22 @@ export function RatingCard({
             {/* Score Box */}
             <div className="bg-[#FFF8F0] p-4 rounded-md flex flex-col items-center justify-center h-28">
                <span className="text-3xl font-bold text-gray-900 mb-1">
-                  {rating}
+                  {rating > 0 ? rating.toFixed(1) : 'N/A'}
                </span>
                <div className="flex gap-0.5 mb-1 text-[#FD8E1F]">
                   {[1, 2, 3, 4, 5].map((i) => (
                      <Star
                         key={i}
                         size={14}
-                        fill={i <= 4 ? 'currentColor' : 'none'} // Assuming rating ~4.x, simpler logic for now or specific
-                        strokeWidth={i <= 4 ? 0 : 2}
+                        fill={i <= Math.round(rating) ? 'currentColor' : 'none'}
+                        strokeWidth={i <= Math.round(rating) ? 0 : 2}
                      />
                   ))}
                </div>
                <span className="text-xs text-gray-500 font-medium">
-                  Overall Rating
+                  {totalRating > 0
+                     ? `${totalRating} Reviews`
+                     : 'No Reviews Yet'}
                </span>
             </div>
 

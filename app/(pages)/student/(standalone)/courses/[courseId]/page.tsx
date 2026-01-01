@@ -27,6 +27,9 @@ import {
    ChevronLeft,
 } from 'lucide-react';
 import Link from 'next/link';
+import { RatingForm } from '@/app/components/student/RatingForm';
+import { getMyRating } from '@/app/services/ratingService';
+import { Star } from 'lucide-react';
 
 export default function WatchCoursePage({
    params,
@@ -47,6 +50,7 @@ export default function WatchCoursePage({
 
    const [videoTime, setVideoTime] = useState<number>(0);
    const videoRef = useRef<HTMLVideoElement>(null);
+   const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
 
    // Check Enrollment on Mount
    useEffect(() => {
@@ -80,6 +84,13 @@ export default function WatchCoursePage({
       queryKey: ['courseProgress', courseId],
       queryFn: () => getCourseProgress(courseId),
       enabled: !!courseId,
+   });
+
+   // Fetch student's own rating for this course
+   const { data: myRating, refetch: refetchMyRating } = useQuery({
+      queryKey: ['myRating', courseId],
+      queryFn: () => getMyRating(courseId),
+      enabled: !!courseId && isEnrolled === true,
    });
 
    // Update progress mutation
@@ -365,8 +376,15 @@ export default function WatchCoursePage({
                      <Menu className="w-6 h-6" />
                   </button>
 
-                  <button className="hidden sm:block px-3 py-1.5 sm:px-4 sm:py-2 text-sm text-orange-500 border border-orange-500 rounded hover:bg-orange-50 transition-colors">
-                     Write A Review
+                  <button
+                     onClick={() => setIsRatingModalOpen(true)}
+                     className={`hidden sm:block px-3 py-1.5 sm:px-4 sm:py-2 text-sm border rounded transition-colors ${
+                        myRating
+                           ? 'text-green-600 border-green-500 hover:bg-green-50'
+                           : 'text-orange-500 border-orange-500 hover:bg-orange-50'
+                     }`}
+                  >
+                     {myRating ? 'View Review' : 'Write A Review'}
                   </button>
                   <button
                      onClick={playNextLecture}
@@ -543,10 +561,65 @@ export default function WatchCoursePage({
                         )}
                         {activeTab === 'comments' && (
                            <div>
-                              <h3 className="font-bold text-lg mb-3">
-                                 Comments
+                              <h3 className="font-bold text-lg mb-4">
+                                 Reviews & Comments
                               </h3>
-                              <p className="text-gray-500">No comments yet.</p>
+                              {myRating ? (
+                                 <div className="bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-100 rounded-lg p-4 mb-4">
+                                    <div className="flex items-center justify-between mb-2">
+                                       <span className="font-semibold text-gray-900">
+                                          Your Review
+                                       </span>
+                                       <div className="flex items-center gap-1">
+                                          {[1, 2, 3, 4, 5].map((star) => (
+                                             <Star
+                                                key={star}
+                                                size={16}
+                                                className={
+                                                   star <= myRating.rating
+                                                      ? 'text-yellow-400 fill-yellow-400'
+                                                      : 'text-gray-300'
+                                                }
+                                             />
+                                          ))}
+                                          <span className="ml-2 text-sm font-medium text-gray-700">
+                                             {myRating.rating}.0
+                                          </span>
+                                       </div>
+                                    </div>
+                                    {myRating.review ? (
+                                       <p className="text-gray-700 italic">
+                                          "{myRating.review}"
+                                       </p>
+                                    ) : (
+                                       <p className="text-gray-500 text-sm">
+                                          No written review provided.
+                                       </p>
+                                    )}
+                                    <button
+                                       onClick={() =>
+                                          setIsRatingModalOpen(true)
+                                       }
+                                       className="mt-3 text-sm text-orange-500 hover:text-orange-600 font-medium"
+                                    >
+                                       Edit Review
+                                    </button>
+                                 </div>
+                              ) : (
+                                 <div className="text-center py-8">
+                                    <p className="text-gray-500 mb-3">
+                                       You haven't reviewed this course yet.
+                                    </p>
+                                    <button
+                                       onClick={() =>
+                                          setIsRatingModalOpen(true)
+                                       }
+                                       className="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+                                    >
+                                       Write A Review
+                                    </button>
+                                 </div>
+                              )}
                            </div>
                         )}
                      </div>
@@ -758,6 +831,33 @@ export default function WatchCoursePage({
                </div>
             </div>
          </div>
+
+         {/* Rating Modal */}
+         {isRatingModalOpen && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center">
+               {/* Backdrop */}
+               <div
+                  className="absolute inset-0 bg-black/50"
+                  onClick={() => setIsRatingModalOpen(false)}
+               />
+               {/* Modal Content */}
+               <div className="relative bg-white rounded-lg shadow-xl w-full max-w-md mx-4 p-6 z-10">
+                  <button
+                     onClick={() => setIsRatingModalOpen(false)}
+                     className="absolute top-4 right-4 p-1 text-gray-400 hover:text-gray-600 rounded-full hover:bg-gray-100"
+                  >
+                     <X className="w-5 h-5" />
+                  </button>
+                  <RatingForm
+                     courseId={courseId}
+                     onSuccess={() => {
+                        setIsRatingModalOpen(false);
+                        refetchMyRating();
+                     }}
+                  />
+               </div>
+            </div>
+         )}
       </div>
    );
 }
