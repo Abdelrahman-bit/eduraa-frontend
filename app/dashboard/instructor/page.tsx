@@ -83,24 +83,35 @@ export default function DashboardPage() {
    const CHART_DATA = stats?.chartData || [];
    const RECENT_ACTIVITY = stats?.recentActivity || [];
 
-   // Mock ratings data (Until backend supports it)
-   const RATING_TREND = [
-      { value: 4.2 },
-      { value: 4.5 },
-      { value: 4.3 },
-      { value: 4.8 },
-      { value: 4.6 },
-      { value: 4.7 },
-      { value: 4.6 },
-   ];
+   // Use real rating data from backend or sensible defaults
+   const ratingStats = stats?.ratingStats;
+   const RATING_TREND = ratingStats?.trend?.length
+      ? ratingStats.trend.map((t) => ({ value: t.value }))
+      : [
+           { value: 0 },
+           { value: 0 },
+           { value: 0 },
+           { value: 0 },
+           { value: 0 },
+           { value: 0 },
+           { value: 0 },
+        ];
 
-   const STAR_DISTRIBUTION = [
-      { stars: 5, percent: 56 },
-      { stars: 4, percent: 37 },
-      { stars: 3, percent: 8 },
-      { stars: 2, percent: 1 },
-      { stars: 1, percent: 0 },
-   ];
+   const STAR_DISTRIBUTION = ratingStats?.distribution?.length
+      ? ratingStats.distribution.map((d) => ({
+           stars: d.stars,
+           percent: d.percent,
+        }))
+      : [
+           { stars: 5, percent: 0 },
+           { stars: 4, percent: 0 },
+           { stars: 3, percent: 0 },
+           { stars: 2, percent: 0 },
+           { stars: 1, percent: 0 },
+        ];
+
+   const averageRating = ratingStats?.averageRating || 0;
+   const totalRatings = ratingStats?.totalRatings || 0;
 
    return (
       <div className="p-6 md:p-8 bg-[#F5F7FA] min-h-screen font-sans">
@@ -198,8 +209,8 @@ export default function DashboardPage() {
             {/* Right Column: Rating */}
             <div className="lg:col-span-4 flex flex-col gap-6">
                <RatingCard
-                  rating={4.6}
-                  totalRating={0}
+                  rating={averageRating}
+                  totalRating={totalRatings}
                   data={STAR_DISTRIBUTION}
                   chartData={RATING_TREND}
                />

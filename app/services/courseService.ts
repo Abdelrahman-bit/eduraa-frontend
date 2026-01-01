@@ -78,6 +78,12 @@ export interface InstructorStats {
       message: string;
       time: string;
    }[];
+   ratingStats?: {
+      averageRating: number;
+      totalRatings: number;
+      distribution: { stars: number; count: number; percent: number }[];
+      trend: { date: string; value: number }[];
+   };
 }
 
 export const createCourseDraft = async (payload: {

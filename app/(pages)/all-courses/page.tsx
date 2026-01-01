@@ -13,6 +13,10 @@ import {
 } from 'lucide-react';
 import { fetchPublishedCourses } from '@/app/services/courses';
 import { fetchCategories } from '@/app/services/categories';
+import {
+   getBatchCourseRatings,
+   RatingStats,
+} from '@/app/services/ratingService';
 import CourseListCard from '@/app/components/all-courses/ui/CourseListCard';
 import CourseCardSkeleton from '@/app/components/all-courses/ui/CourseCardSkeleton';
 import FilterSidebar from '@/app/components/all-courses/ui/FilterSidebar';
@@ -67,6 +71,9 @@ const App = () => {
       'trending' | 'newest' | 'price-low' | 'price-high' | 'rating'
    >('trending');
    const [showSortMenu, setShowSortMenu] = useState(false);
+   const [courseRatings, setCourseRatings] = useState<
+      Record<string, RatingStats>
+   >({});
 
    // Initialize category filter from URL parameter
    useEffect(() => {
@@ -110,6 +117,14 @@ const App = () => {
    });
 
    const allCourses = data?.data || [];
+
+   // Fetch ratings for all courses when courses load
+   useEffect(() => {
+      if (allCourses.length > 0) {
+         const courseIds = allCourses.map((c: any) => c._id);
+         getBatchCourseRatings(courseIds).then(setCourseRatings);
+      }
+   }, [allCourses.length]);
 
    // Client-side filtering (backup if API doesn't filter properly)
    let courses = allCourses.filter((course) => {
@@ -158,6 +173,15 @@ const App = () => {
          }
       }
 
+      // Rating filter
+      if (selectedRatings.length > 0) {
+         const courseRating = courseRatings[course._id]?.averageRating || 0;
+         const minSelectedRating = Math.min(...selectedRatings);
+         if (courseRating < minSelectedRating) {
+            return false;
+         }
+      }
+
       return true;
    });
 
@@ -174,8 +198,10 @@ const App = () => {
                new Date(a.createdAt || 0).getTime()
             );
          case 'rating':
-            // Since we don't have rating in API response, keep original order
-            return 0;
+            // Sort by rating using fetched ratings
+            const aRating = courseRatings[a._id]?.averageRating || 0;
+            const bRating = courseRatings[b._id]?.averageRating || 0;
+            return bRating - aRating;
          case 'trending':
          default:
             return 0;
