@@ -778,7 +778,7 @@ export default function CourseDetailsPage({
                         {/* Guest User - Login to Enroll */}
                         {!isAuthenticated && (
                            <button
-                              onClick={() => router.push('/login')}
+                              onClick={() => router.push('/auth/login')}
                               className="w-full py-4 px-6 bg-orange-500 hover:bg-orange-600 text-white font-bold text-lg rounded-lg transition-colors cursor-pointer shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2"
                            >
                               Login to Enroll
