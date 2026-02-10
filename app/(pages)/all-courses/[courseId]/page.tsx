@@ -136,7 +136,7 @@ export default function CourseDetailsPage({
    // Handle enrollment request
    const handleRequestEnroll = async () => {
       if (!isAuthenticated) {
-         router.push('/login');
+         router.push('/auth/login');
          return;
       }
 
